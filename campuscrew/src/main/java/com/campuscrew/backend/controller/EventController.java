@@ -31,4 +31,11 @@ public class EventController {
         eventRepository.save(event);
         return "redirect:/events";
     }
+
+    @GetMapping("/delete-event/{id}")
+    public String deleteEvent(@org.springframework.web.bind.annotation.PathVariable Long id) {
+        eventRepository.deleteById(id);
+        return "redirect:/events";
+    }
+
 }
