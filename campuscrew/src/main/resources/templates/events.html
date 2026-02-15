@@ -3,51 +3,72 @@
 <head>
     <title>Campus Events</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style> body { background-color: #f8f9fa; padding-top: 20px; } </style>
+    <style> 
+        body { background-color: #f8f9fa; padding-top: 20px; } 
+        .event-card { transition: transform 0.2s; }
+        .event-card:hover { transform: translateY(-5px); }
+    </style>
 </head>
 <body>
+
 <div class="container">
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>📅 Upcoming Events</h1>
         <a href="/" class="btn btn-outline-secondary">Back to Dashboard</a>
     </div>
-    <div class="card p-4 mb-5 shadow-sm">
-        <h4>Post a New Event</h4>
+
+    <div class="card p-4 mb-5 shadow-sm border-0">
+        <h4 class="mb-3">Post a New Event 📢</h4>
+        
         <form th:action="@{/events}" method="POST">
             <div class="row">
                 <div class="col-md-4 mb-2">
-                    <input type="text" name="title" class="form-control" placeholder="Event Title" required>
+                    <input type="text" name="title" class="form-control" placeholder="Event Title (e.g. Hackathon)" required>
                 </div>
                 <div class="col-md-3 mb-2">
-                    <input type="text" name="location" class="form-control" placeholder="Location" required>
+                    <input type="text" name="location" class="form-control" placeholder="Location (e.g. Lab 3)" required>
                 </div>
                 <div class="col-md-3 mb-2">
                     <input type="datetime-local" name="dateTime" class="form-control" required>
                 </div>
                 <div class="col-md-2 mb-2">
-                    <button type="submit" class="btn btn-success w-100">Post</button>
+                    <button type="submit" class="btn btn-success w-100">Post Event</button>
                 </div>
             </div>
-            <textarea name="description" class="form-control mt-2" placeholder="Description (optional)" rows="2"></textarea>
+            <textarea name="description" class="form-control mt-2" placeholder="Description: What's happening? Who should come?" rows="2"></textarea>
         </form>
     </div>
+
     <div class="row">
-        <div class="col-md-6 mb-3" th:each="event : ${events}">
-            <div class="card h-100 shadow-sm border-0">
+        
+        <div class="col-md-6 mb-4" th:each="event : ${events}">
+            <div class="card h-100 shadow-sm border-0 event-card">
                 <div class="card-body">
-                    <h5 class="card-title text-primary" th:text="${event.title}">Java Workshop</h5>
+                    <h5 class="card-title text-primary fw-bold" th:text="${event.title}">Event Title</h5>
+                    
                     <h6 class="card-subtitle mb-2 text-muted">
-                        📍 <span th:text="${event.location}">Library</span> | 
-                        🕒 <span th:text="${#temporals.format(event.dateTime, 'MMM dd, HH:mm')}">Date</span>
+                        📍 <span th:text="${event.location}">Location</span> <br>
+                        🕒 <span th:text="${#temporals.format(event.dateTime, 'EEE, MMM d • h:mm a')}">Date</span>
                     </h6>
-                    <p class="card-text" th:text="${event.description}">Description goes here...</p>
+                    
+                    <p class="card-text mt-3" th:text="${event.description}">Description goes here...</p>
+                </div>
+                <div class="card-footer bg-white border-0">
+                    <button class="btn btn-sm btn-outline-primary w-100">Register (Coming Soon)</button>
                 </div>
             </div>
         </div>
+        
         <div class="col-12 text-center mt-5" th:if="${events.empty}">
-            <p class="text-muted">No events yet. Be the first to post one! 🚀</p>
+            <div class="p-5 bg-light rounded-3">
+                <h3>No events yet? 😢</h3>
+                <p class="text-muted">Be the first to post one above!</p>
+            </div>
         </div>
+        
     </div>
 </div>
+
 </body>
 </html>
