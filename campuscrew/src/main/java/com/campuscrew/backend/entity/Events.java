@@ -12,6 +12,8 @@ import jakarta.persistence.Table;
 @Table(name = "events")
 public class Events {
 
+    @jakarta.persistence.ManyToMany
+    private java.util.List<AppUser> attendees;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -61,5 +63,17 @@ public class Events {
 
     public void setDateTime(LocalDateTime dateTime) {
         this.dateTime = dateTime;
+    }
+
+    public java.util.List<AppUser> getAttendees() {
+        return attendees;
+    }
+
+    public void setAttendees(java.util.List<AppUser> attendees) {
+        this.attendees = attendees;
+    }
+
+    public void addAttendee(AppUser user) {
+        this.attendees.add(user);
     }
 }

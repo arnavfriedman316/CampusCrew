@@ -55,7 +55,10 @@
                     <p class="card-text mt-3" th:text="${event.description}">Description goes here...</p>
                 </div>
                 <div class="card-footer bg-white border-0 d-flex justify-content-between">
-                     <button class="btn btn-sm btn-outline-primary">Register</button>
+                    <a th:href="@{/register-event/{id}(id=${event.id})}" 
+                        class="btn btn-sm btn-outline-success w-100">
+                        Register 🎟️
+                    </a>
 
     <a th:href="@{/delete-event/{id}(id=${event.id})}" 
        class="btn btn-sm btn-outline-danger"
