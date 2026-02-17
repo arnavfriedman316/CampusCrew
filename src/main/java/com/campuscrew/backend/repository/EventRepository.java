@@ -8,7 +8,7 @@ import com.campuscrew.backend.entity.Events;
 
 public interface EventRepository extends JpaRepository<Events, Long> {
 
-    // This gives us save(), delete(), and findAll() for free!
+    //this gives us save, delete, etc
     //this is for sorting students related to when they register, the one who registers latest shows first and so on and so forth
     List<Events> findAllByOrderByDateTimeAsc();
 }

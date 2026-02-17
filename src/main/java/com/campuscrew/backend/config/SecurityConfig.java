@@ -18,15 +18,15 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Allow form submissions
+                .csrf(csrf -> csrf.disable()) //this allows submissions of forms
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/register", "/css/**").permitAll() // PUBLIC PAGES
-                .anyRequest().authenticated() // LOCK EVERYTHING ELSE
+                .requestMatchers("/", "/register", "/css/**").permitAll() //these are the public pages, accessable by all
+                .anyRequest().authenticated() //these will lock away the pages so that only the login-ed person can access this
                 )
                 .formLogin(login -> login
                 .loginPage("/login") // Use our custom file
                 .defaultSuccessUrl("/", true)
-                .permitAll() // Allow everyone to see the login page!
+                .permitAll() //this allows user to see the register and login pages
                 )
                 .logout(logout -> logout.permitAll());
 
