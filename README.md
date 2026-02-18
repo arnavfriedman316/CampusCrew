@@ -1,4 +1,3 @@
-#CampusCrew
 CampusCrew is a full-stack web application designed to bridge the gap between students and campus activities. 
 It serves as a centralized hub where students can discover, create, and register for university events in real-time, replacing scattered noticeboards with a dynamic digital feed.
 
