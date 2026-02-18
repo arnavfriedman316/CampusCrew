@@ -19,62 +19,37 @@ public class EventController {
     @Autowired
     private EventRepository eventRepository;
 
-    // 1. GET Method: Shows the page
+    // this is the get method and it will show the events page
     @GetMapping("/events")
     public String showEventsPage(Model model) {
-        // Fetch existing events to display
+        //this will extract the existing events, likes the ones that are made previously
         model.addAttribute("events", eventRepository.findAllByOrderByDateTimeAsc());
         return "events";
     }
-
-    // 2. POST Method: Saves the data
+    //This saves the data
     @PostMapping("/events")
     public String createEvent(@ModelAttribute Events event) {
         eventRepository.save(event);
         return "redirect:/events";
     }
 
+    //this will allow the user to delete the event
     @GetMapping("/delete-event/{id}")
     public String deleteEvent(@org.springframework.web.bind.annotation.PathVariable Long id) {
         eventRepository.deleteById(id);
         return "redirect:/events";
     }
 
+    //this will allow the user to register for the event
     @GetMapping("/register-event/{id}")
-    public String registerForEvent(@org.springframework.web.bind.annotation.PathVariable Long id,
-            java.security.Principal principal,
-            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
-
-        // 1. Find User and Event
+    public String registerForEvent(@org.springframework.web.bind.annotation.PathVariable Long id, java.security.Principal principal) {
         String email = principal.getName();
         com.campuscrew.backend.entity.AppUser user = userRepository.findByEmail(email);
         Events event = eventRepository.findById(id).orElse(null);
-
         if (event != null && user != null) {
-
-            // 2. CHECK: Is this user already in the attendees list?
-            boolean alreadyRegistered = false;
-            for (com.campuscrew.backend.entity.AppUser attendee : event.getAttendees()) {
-                if (attendee.getId().equals(user.getId())) {
-                    alreadyRegistered = true;
-                    break;
-                }
-            }
-
-            // 3. LOGIC: Add or Reject
-            if (alreadyRegistered) {
-                // FAILURE: Send an error message
-                redirectAttributes.addFlashAttribute("error", "You are already registered for this event! 🚫");
-            } else {
-                // SUCCESS: Add them and save
-                event.getAttendees().add(user);
-                eventRepository.save(event);
-                redirectAttributes.addFlashAttribute("success", "Successfully registered! See you there. 🎉");
-            }
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Event not found!");
+            event.getAttendees().add(user);
+            eventRepository.save(event);
         }
-
         return "redirect:/events";
     }
 }
