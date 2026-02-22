@@ -8,6 +8,6 @@ import com.campuscrew.backend.entity.AppUser;
 @Repository
 public interface UserRepository extends JpaRepository<AppUser, Long> {
 
-    // This adds the functionality to find users by email automatically
+    //this allows for automatic finding of user by their email
     AppUser findByEmail(String email);
 }

@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .anyRequest().authenticated() //these will lock away the pages so that only the login-ed person can access this
                 )
                 .formLogin(login -> login
-                .loginPage("/login") // Use our custom file
+                .loginPage("/login") //use our custom file
                 .defaultSuccessUrl("/", true)
                 .permitAll() //this allows user to see the register and login pages
                 )

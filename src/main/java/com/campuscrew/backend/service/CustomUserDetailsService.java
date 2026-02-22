@@ -9,26 +9,24 @@ import org.springframework.stereotype.Service;
 
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.repository.UserRepository;
-
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
+    @Autowired 
     private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Find user by email
+        //this search the user with the help of their email as suggested by the variable name
         AppUser appUser = userRepository.findByEmail(email);
-        
+
         if (appUser == null) {
             throw new UsernameNotFoundException("User not found");
         }
-
-        // Return the user details to Spring Security
+        // this returns the value to the spring security
         return User.builder()
                 .username(appUser.getEmail())
-                .password(appUser.getPassword()) 
+                .password(appUser.getPassword())
                 .roles(appUser.getRole())
                 .build();
     }

@@ -10,11 +10,10 @@ import com.campuscrew.backend.entity.Events;
 @Repository
 public interface EventRepository extends JpaRepository<Events, Long> {
 
-    // 1. Fetches all events sorted by date/time (Upcoming first)
+    // this will sort the events according to the date and time, in first come first served model
     List<Events> findAllByOrderByDateTimeAsc();
 
-    // 2. NEW: Search functionality
-    // Finds events where the Title OR Location contains the search word (ignoring upper/lowercase)
+    // This will allow user to find the events, like by searching them
     List<Events> findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(String title, String location);
 
 }

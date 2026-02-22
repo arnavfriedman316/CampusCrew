@@ -18,26 +18,24 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // All your custom fields restored!
     private String fullName;
     private String bio;
-    private String role; // <--- Added this back for Spring Security!
+    private String role;
 
     @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
-    // The bridge to Events
+    // this is a bridge to all the events
     @ManyToMany(mappedBy = "attendees")
     private List<Events> events = new ArrayList<>();
 
-    // --- Empty Constructor ---
+    //this is an empty constructor
     public AppUser() {
     }
 
-    // --- Getters and Setters ---
+    // the following are the getters and setters.
     public Long getId() {
         return id;
     }

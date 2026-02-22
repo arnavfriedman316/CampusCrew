@@ -27,54 +27,54 @@ public class EventController {
     @Autowired
     private UserRepository userRepository;
 
-    // 1. GET Method: Shows the events page (with Search functionality)
+    // this is the events caller, like this will call the events to be shown on the webpage, this also has search functionalities
     @GetMapping("/events")
     public String showEventsPage(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
         List<Events> events;
 
         if (keyword != null && !keyword.isEmpty()) {
-            // Search by title or location (Requires the custom method in EventRepository)
+            // search by title or location
             events = eventRepository.findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(keyword, keyword);
         } else {
-            // Show all events sorted by date
+            // shows all events sorted by date
             events = eventRepository.findAllByOrderByDateTimeAsc();
         }
 
         model.addAttribute("events", events);
-        model.addAttribute("keyword", keyword); // Keeps the search word in the box
+        model.addAttribute("keyword", keyword); // keeps the search word in the box
         return "events";
     }
 
-    // 2. POST Method: Saves a new event
+    // this saves a new event
     @PostMapping("/events")
     public String createEvent(@ModelAttribute Events event) {
         eventRepository.save(event);
         return "redirect:/events";
     }
 
-    // 3. DELETE Method: Removes an event
+    //removes an event as the name suggests.
     @GetMapping("/delete-event/{id}")
     public String deleteEvent(@PathVariable Long id) {
         eventRepository.deleteById(id);
         return "redirect:/events";
     }
 
-    // 4. REGISTER Method: User joins an event (With duplicate check & flash messages)
+    // this is the register method
     @GetMapping("/register-event/{id}")
     public String registerForEvent(@PathVariable Long id,
             Principal principal,
             RedirectAttributes redirectAttributes) {
 
-        // Find Logged-in User
+        //find logged-in user
         String email = principal.getName();
         AppUser user = userRepository.findByEmail(email);
 
-        // Find Event clicked
+        // find event clicked
         Events event = eventRepository.findById(id).orElse(null);
 
         if (event != null && user != null) {
 
-            // Check if user is already in the attendees list
+            // checks if user is already in the attendees list
             boolean alreadyRegistered = false;
             for (AppUser attendee : event.getAttendees()) {
                 if (attendee.getId().equals(user.getId())) {
@@ -84,10 +84,10 @@ public class EventController {
             }
 
             if (alreadyRegistered) {
-                // Reject duplicate
+                // rejects duplicate
                 redirectAttributes.addFlashAttribute("error", "You are already registered for this event! 🚫");
             } else {
-                // Add and save
+                // adds and save
                 event.getAttendees().add(user);
                 eventRepository.save(event);
                 redirectAttributes.addFlashAttribute("success", "Successfully registered! See you there. 🎉");
@@ -99,7 +99,7 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // 5. MY EVENTS: Show only events the logged-in user joined
+    // allows the logged in user to see the events he/she has registered into
     @GetMapping("/my-events")
     public String showMyEvents(Model model, Principal principal) {
         String email = principal.getName();
@@ -112,7 +112,7 @@ public class EventController {
         return "my-events";
     }
 
-    // 6. UNREGISTER: User leaves an event
+    // this allows user to unregister for the event
     @GetMapping("/unregister/{id}")
     public String unregisterFromEvent(@PathVariable Long id, Principal principal) {
         String email = principal.getName();
