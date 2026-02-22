@@ -1,22 +1,25 @@
 package com.campuscrew.backend.controller;
 
-import java.security.Principal;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.entity.Events;
 import com.campuscrew.backend.repository.EventRepository;
 import com.campuscrew.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.security.Principal;
+import java.util.List;
+import java.util.UUID;
 
 @Controller
 public class EventController {
@@ -27,104 +30,150 @@ public class EventController {
     @Autowired
     private UserRepository userRepository;
 
-    // this is the events caller, like this will call the events to be shown on the webpage, this also has search functionalities
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    // ==========================================
+    // 1. VIEW ALL EVENTS & SEARCH
+    // ==========================================
     @GetMapping("/events")
-    public String showEventsPage(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
+    public String listEvents(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
         List<Events> events;
-
+        // If the user typed something in the search bar, filter it!
         if (keyword != null && !keyword.isEmpty()) {
-            // search by title or location
             events = eventRepository.findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(keyword, keyword);
+            model.addAttribute("keyword", keyword);
         } else {
-            // shows all events sorted by date
-            events = eventRepository.findAllByOrderByDateTimeAsc();
+            // Otherwise, show everything
+            events = eventRepository.findAll();
         }
-
         model.addAttribute("events", events);
-        model.addAttribute("keyword", keyword); // keeps the search word in the box
         return "events";
     }
 
-    // this saves a new event
+    // ==========================================
+    // 2. POST A NEW EVENT
+    // ==========================================
     @PostMapping("/events")
     public String createEvent(@ModelAttribute Events event) {
         eventRepository.save(event);
         return "redirect:/events";
     }
 
-    //removes an event as the name suggests.
+    // ==========================================
+    // 3. DELETE AN EVENT
+    // ==========================================
     @GetMapping("/delete-event/{id}")
     public String deleteEvent(@PathVariable Long id) {
         eventRepository.deleteById(id);
         return "redirect:/events";
     }
 
-    // this is the register method
+    // ==========================================
+    // 4. REGISTER FOR AN EVENT
+    // ==========================================
     @GetMapping("/register-event/{id}")
-    public String registerForEvent(@PathVariable Long id,
-            Principal principal,
-            RedirectAttributes redirectAttributes) {
-
-        //find logged-in user
+    public String registerForEvent(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         String email = principal.getName();
         AppUser user = userRepository.findByEmail(email);
-
-        // find event clicked
         Events event = eventRepository.findById(id).orElse(null);
 
-        if (event != null && user != null) {
-
-            // checks if user is already in the attendees list
-            boolean alreadyRegistered = false;
-            for (AppUser attendee : event.getAttendees()) {
-                if (attendee.getId().equals(user.getId())) {
-                    alreadyRegistered = true;
-                    break;
-                }
-            }
-
-            if (alreadyRegistered) {
-                // rejects duplicate
-                redirectAttributes.addFlashAttribute("error", "You are already registered for this event! 🚫");
+        if (event != null) {
+            // Check if the user is ALREADY registered to prevent duplicates
+            if (user.getEvents().contains(event)) {
+                redirectAttributes.addFlashAttribute("error", "You are already registered for this event!");
             } else {
-                // adds and save
-                event.getAttendees().add(user);
-                eventRepository.save(event);
-                redirectAttributes.addFlashAttribute("success", "Successfully registered! See you there. 🎉");
+                // If not, add them to the list!
+                user.getEvents().add(event);
+                userRepository.save(user);
+                redirectAttributes.addFlashAttribute("success", "Successfully registered for " + event.getTitle() + "!");
             }
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Event or User not found!");
         }
-
         return "redirect:/events";
     }
 
-    // allows the logged in user to see the events he/she has registered into
+    // ==========================================
+    // 5. VIEW MY TICKETS (REGISTERED EVENTS)
+    // ==========================================
     @GetMapping("/my-events")
-    public String showMyEvents(Model model, Principal principal) {
+    public String myEvents(Model model, Principal principal) {
         String email = principal.getName();
         AppUser user = userRepository.findByEmail(email);
 
-        List<Events> myEvents = user.getEvents();
-
-        model.addAttribute("events", myEvents);
-        model.addAttribute("isMyEventsPage", true);
+        // Only send the events that this specific user is attending
+        model.addAttribute("events", user.getEvents());
         return "my-events";
     }
 
-    // this allows user to unregister for the event
-    @GetMapping("/unregister/{id}")
-    public String unregisterFromEvent(@PathVariable Long id, Principal principal) {
+    // ==========================================
+    // 6. VIEW PROFILE PAGE
+    // ==========================================
+    @GetMapping("/profile")
+    public String showProfile(Model model, Principal principal) {
         String email = principal.getName();
         AppUser user = userRepository.findByEmail(email);
-        Events event = eventRepository.findById(id).orElse(null);
+        model.addAttribute("user", user);
+        return "profile";
+    }
 
-        if (event != null && user != null) {
-            // Remove the user from the event's attendee list
-            event.getAttendees().remove(user);
-            eventRepository.save(event);
+    // ==========================================
+    // 7. EDIT PROFILE (Name, Bio, and Image Upload)
+    // ==========================================
+    @PostMapping("/edit-profile")
+    public String saveProfileChanges(
+            @RequestParam("fullName") String fullName,
+            @RequestParam("bio") String bio,
+            @RequestParam(value = "currentPassword", required = false) String currentPassword,
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
+        String email = principal.getName();
+        AppUser user = userRepository.findByEmail(email);
+
+        // A. Password Verification for Name Change
+        if (!user.getFullName().equals(fullName)) {
+            if (currentPassword == null || currentPassword.isEmpty() || !passwordEncoder.matches(currentPassword, user.getPassword())) {
+                redirectAttributes.addFlashAttribute("error", "Incorrect password! Name change denied.");
+                return "redirect:/profile";
+            }
+            user.setFullName(fullName);
         }
 
-        return "redirect:/my-events";
+        // B. Update the Bio
+        user.setBio(bio);
+
+        // C. Save the Physical Profile Photo to the Hard Drive
+        if (photo != null && !photo.isEmpty()) {
+            try {
+                // Define the folder where we want to save images
+                String uploadDir = "uploads/profile_photos/";
+                Path uploadPath = Paths.get(uploadDir);
+
+                // If the folder doesn't exist yet, create it!
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                // Generate a random unique name for the file so users don't overwrite each other's photos
+                String uniqueFileName = UUID.randomUUID().toString() + "_" + photo.getOriginalFilename();
+                Path filePath = uploadPath.resolve(uniqueFileName);
+
+                // Copy the file from the browser to your computer's folder
+                Files.copy(photo.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // Save ONLY the URL path in the database
+                user.setProfilePhotoUrl("/" + uploadDir + uniqueFileName);
+
+            } catch (IOException e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to save the image to the server.");
+                return "redirect:/profile";
+            }
+        }
+
+        // D. Save to DB and return Success
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("success", "Profile updated successfully! ✨");
+        return "redirect:/profile";
     }
 }

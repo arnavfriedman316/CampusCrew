@@ -3,7 +3,6 @@ package com.campuscrew.backend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,22 +34,6 @@ public class HomeController {
         return "register";
     }
 
-    @GetMapping("/profile")
-    public String showProfilePage(Model model, java.security.Principal principal) {
-        String email = principal.getName();
-        AppUser user = userRepository.findByEmail(email); //this will request the userprofile page
-        model.addAttribute("user", user);
-        return "profile";
-    }
-
-    @GetMapping("/edit-profile")
-    public String showEditProfilePage(org.springframework.ui.Model model, java.security.Principal principal) {
-        String email = principal.getName();
-        AppUser user = userRepository.findByEmail(email); //this will request for the edit profile page when cliciked
-        model.addAttribute("user", user);
-        return "edit-profile";
-    }
-
     @PostMapping("/register")
     public String registerUser(
             @RequestParam String fullName,
@@ -67,15 +50,5 @@ public class HomeController {
         userRepository.save(newUser);
 
         return "redirect:/login";
-    }
-
-    @PostMapping("edit-profile")
-    public String saveProfileChanges(@RequestParam String fullName, @RequestParam String bio, java.security.Principal principal) {
-        String email = principal.getName();
-        AppUser user = userRepository.findByEmail(email); //this will allow usee to enter the changes he/she wants to do in their profile.
-        user.setFullName(fullName);
-        user.setBio(bio);
-        userRepository.save(user);
-        return "redirect:/profile";
     }
 }

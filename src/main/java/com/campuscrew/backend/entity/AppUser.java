@@ -18,24 +18,27 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String fullName;
     private String bio;
     private String role;
+
+    // 📸 NEW: This stores the file path to the user's uploaded profile picture
+    private String profilePhotoUrl;
 
     @Column(unique = true, nullable = false)
     private String email;
 
     private String password;
 
-    // this is a bridge to all the events
     @ManyToMany(mappedBy = "attendees")
     private List<Events> events = new ArrayList<>();
 
-    //this is an empty constructor
+    // --- Empty Constructor ---
     public AppUser() {
     }
 
-    // the following are the getters and setters.
+    // --- Getters and Setters ---
     public Long getId() {
         return id;
     }
@@ -66,6 +69,16 @@ public class AppUser {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    // 📸 NEW: Getter for the profile photo
+    public String getProfilePhotoUrl() {
+        return profilePhotoUrl;
+    }
+
+    // 📸 NEW: Setter for the profile photo
+    public void setProfilePhotoUrl(String profilePhotoUrl) {
+        this.profilePhotoUrl = profilePhotoUrl;
     }
 
     public String getEmail() {

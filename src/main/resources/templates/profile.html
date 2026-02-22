@@ -1,74 +1,186 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>My Profile - CampusCrew</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+
     <style>
-        body { 
-            background-color: #f8f9fa; 
-            padding-top: 50px; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { overflow-x: hidden; }
+
+        /* Premium Profile Cards */
+        .profile-card {
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1);
         }
-        .profile-card { 
-            max-width: 600px; 
-            margin: auto; 
-            background: white; 
-            padding: 40px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        
+        /* Profile Image Styling */
+        .profile-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-top: -75px; /* Pulls the image up into the header banner */
+            background-color: #fff;
         }
-        .avatar { 
-            width: 100px; 
-            height: 100px; 
-            background-color: #0d6efd; 
-            color: white; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 3.5rem; 
-            margin: 0 auto 20px; 
-            border: 4px solid #e9ecef;
+
+        /* Banner styling for the top of the profile card */
+        .profile-banner {
+            height: 120px;
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            border-top-left-radius: 19px;
+            border-top-right-radius: 19px;
         }
-        .info-label {
-            font-size: 0.9rem;
-            color: #6c757d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
+
+        /* 🌙 Dark Mode Overrides */
+        [data-bs-theme="dark"] .profile-card {
+            background-color: #2b3035;
+            border: 1px solid #495057;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
+        }
+        [data-bs-theme="dark"] .profile-img {
+            border-color: #2b3035; /* Matches card background */
+            background-color: #2b3035;
+        }
+        [data-bs-theme="dark"] .form-control {
+            background-color: #212529;
+            border-color: #495057;
+            color: #fff;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div class="profile-card text-center">
-            
-            <div class="avatar">👤</div>
-            
-            <h2 class="mb-1" th:text="${user.fullName}">Loading Name...</h2>
-            <p class="text-muted mb-4" th:text="${user.email}">loading@email.com</p>
+<div class="container mt-5 mb-5">
 
-            <hr class="my-4">
+    <div class="row align-items-center mb-5 pb-3 border-bottom border-secondary-subtle">
+        <div class="col-md-4 text-start">
+            <h1 class="m-0 fw-bold">👤 My Profile</h1>
+        </div>
+        <div class="col-md-4"></div>
+        <div class="col-md-4 d-flex justify-content-end align-items-center">
+            <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
+            <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+        </div>
+    </div>
 
-            <div class="row text-start">
-                <div class="col-6 mb-3">
-                    <div class="info-label">Account Type</div>
-                    <div class="text-success fw-bold">Student Member</div>
-                </div>
-                <div class="col-6 mb-3">
-                    <div class="info-label">Status</div>
-                    <div>Active ✅</div>
-                </div>
-                <div class="col-12">
-                    <div class="info-label">Bio</div>
-                    <p class="text-muted">
-                        <em>(No bio added yet. Click 'Edit' to add one!)</em>
-                    </p>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <strong th:text="${success}">Success!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <strong th:text="${error}">Error!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div class="row g-4">
+        
+        <div class="col-md-4">
+            <div class="card profile-card shadow-sm text-center h-100">
+                <div class="profile-banner"></div>
+                <div class="card-body px-4 pb-4">
+                    
+                    <img th:src="${user.profilePhotoUrl != null ? user.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=random&size=256'}" 
+                         alt="Profile Photo" class="profile-img mb-3">
+                    
+                    <h3 class="fw-bold mb-1" th:text="${user.fullName}">John Doe</h3>
+                    <p class="text-primary fw-medium mb-3" th:text="${user.email}">john@example.com</p>
+                    
+                    <hr class="text-secondary-subtle">
+                    
+                    <div class="text-start mt-3">
+                        <h6 class="text-secondary fw-bold text-uppercase mb-2">About Me</h6>
+                        <p class="text-body" th:text="${user.bio != null && !user.bio.isEmpty() ? user.bio : 'No bio added yet. Tell everyone about yourself!'}">Bio goes here...</p>
+                    </div>
+
                 </div>
             </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card profile-card shadow-sm h-100 p-4">
+                <h3 class="fw-bold mb-4">Edit Details ✏️</h3>
+                
+                <form th:action="@{/edit-profile}" method="post" enctype="multipart/form-data">
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Profile Photo</label>
+                        <input class="form-control shadow-sm" type="file" name="photo" accept="image/png, image/jpeg">
+                        <div class="form-text">Optional: Upload a new square image (JPG/PNG).</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Bio</label>
+                        <textarea class="form-control shadow-sm" name="bio" rows="4" 
+                                  placeholder="What's happening? Who are you?" 
+                                  th:text="${user.bio}"></textarea>
+                    </div>
+
+                    <hr class="text-secondary-subtle my-4">
+
+                    <div class="mb-4 p-4 rounded-4" style="background-color: var(--bs-tertiary-bg);">
+                        <h5 class="fw-bold text-danger mb-3">Secure Settings</h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary">Full Name</label>
+                                <input type="text" class="form-control shadow-sm" name="fullName" th:value="${user.fullName}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold text-secondary">Current Password</label>
+                                <input type="password" class="form-control shadow-sm border-danger-subtle" name="currentPassword" 
+                                       placeholder="Required to change name">
+                                <div class="form-text text-danger">You must enter your password to save changes.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm rounded-pill">Save Changes</button>
+                    </div>
+                    
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const htmlElement = document.documentElement; 
+        const themeToggleBtn = document.getElementById('darkModeToggle');
+
+        const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
+        themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        updateButtonStyle(currentTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            let theme = htmlElement.getAttribute('data-bs-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            updateButtonStyle(newTheme);
+        });
+
+        function updateButtonStyle(theme) {
+            if (theme === 'dark') {
+                themeToggleBtn.classList.replace('btn-dark', 'btn-light');
+            } else {
+                themeToggleBtn.classList.replace('btn-light', 'btn-dark');
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
