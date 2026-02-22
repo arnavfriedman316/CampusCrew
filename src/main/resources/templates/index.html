@@ -1,60 +1,146 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Dashboard - CampusCrew</title>
+    <meta charset="UTF-8">
+    <title>KampusKrew Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
-        body { background-color: #f8f9fa; }
-        .navbar { box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .welcome-banner { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-top: 30px; }
-        .card-icon { font-size: 2rem; color: #0d6efd; margin-bottom: 15px; }
+        body { overflow-x: hidden; }
+
+        /* Premium Dashboard Cards */
+        .dash-card {
+            transition: all 0.3s ease;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.1);
+            text-decoration: none; /* Removes link underline */
+            display: block;
+        }
+        .dash-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+        }
+
+        /* 🌙 Dark Mode Overrides */
+        [data-bs-theme="dark"] .dash-card {
+            background-color: #2b3035;
+            border: 1px solid #495057;
+        }
+        [data-bs-theme="dark"] .dash-card:hover {
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6) !important;
+            border-color: #6c757d;
+        }
+        [data-bs-theme="dark"] .text-muted-custom {
+            color: #adb5bd !important; 
+        }
+        
+        /* Gradient Text for the Hero Title */
+        .gradient-text {
+            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-        <a class="navbar-brand fw-bold" href="/">🎓 CampusCrew</a>
-        <div class="ms-auto d-flex align-items-center">
-            <span class="text-white me-3">
-                Signed in as: <b th:text="${#authentication.name}">User</b>
-            </span>
-            <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+
+<div class="container mt-5 mb-5">
+
+    <div class="row align-items-center mb-5 pb-3 border-bottom border-secondary-subtle">
+        
+        <div class="col-md-4 text-start">
+            <h3 class="m-0 fw-bold">KampusKrew</h3>
         </div>
-    </nav>
-    <div class="container">  
-        <div class="welcome-banner text-center">
-            <h1>Welcome Aboard! 🚀</h1>
-            <p class="text-muted">You have successfully logged into the secure student portal.</p>
+        
+        <div class="col-md-4">
         </div>
-        <div class="row mt-4">
-            <div class="col-md-4">
-                <div class="card p-4 text-center border-0 shadow-sm">
-                    <div class="card-icon">👤</div>
-                    <h5>My Profile</h5>
-                    <p class="small text-muted">View and edit your personal details.</p>                   
-                    <a href="/profile" class="btn btn-primary btn-sm">Go to Profile</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-4 text-center border-0 shadow-sm">
-                    <div class="card-icon">📅</div>
-                    <h5>Events</h5>
-                    <p class="small text-muted">Check upcoming campus activities.</p>
-                    <a href="/events" class="btn btn-outline-primary btn-sm">View Calendar</a>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-4 text-center border-0 shadow-sm">
-                    <div class="card-icon">⚙️</div>
-                    <h5>Settings</h5>
-                    <p class="small text-muted">Manage your account preferences.</p>
-                    <button class="btn btn-outline-secondary btn-sm">Open Settings</button>
-                </div>
-            </div>
+        
+        <div class="col-md-4 d-flex justify-content-end align-items-center">
+            <button class="btn btn-dark shadow-sm me-3" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn btn-outline-danger shadow-sm px-4">Logout</button>
+            </form>
         </div>
+        
     </div>
+
+    <div class="text-center mb-5 mt-5">
+        <h1 class="display-4 fw-bolder mb-3">Welcome to <span class="gradient-text">KampusKrew</span></h1>
+        <p class="lead text-secondary text-muted-custom">Your central hub for finding, hosting, and managing campus events.</p>
+    </div>
+
+    <div class="row justify-content-center g-4 mt-2">
+        
+        <div class="col-md-4">
+            <a th:href="@{/events}" class="card h-100 dash-card shadow-sm text-center p-4">
+                <div class="card-body">
+                    <h1 class="display-3 mb-3">🌍</h1>
+                    <h3 class="fw-bold text-body">Browse Events</h3>
+                    <p class="text-secondary text-muted-custom mt-2">Discover what's happening around campus and post your own events.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a th:href="@{/my-events}" class="card h-100 dash-card shadow-sm text-center p-4">
+                <div class="card-body">
+                    <h1 class="display-3 mb-3">🎟️</h1>
+                    <h3 class="fw-bold text-body">My Tickets</h3>
+                    <p class="text-secondary text-muted-custom mt-2">View the events you have registered for and manage your schedule.</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a th:href="@{/profile}" class="card h-100 dash-card shadow-sm text-center p-4">
+                <div class="card-body">
+                    <h1 class="display-3 mb-3">👤</h1>
+                    <h3 class="fw-bold text-body">My Profile</h3>
+                    <p class="text-secondary text-muted-custom mt-2">Update your bio, name, and manage your account settings.</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const htmlElement = document.documentElement; 
+        const themeToggleBtn = document.getElementById('darkModeToggle');
+
+        const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
+        themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
+        updateButtonStyle(currentTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            let theme = htmlElement.getAttribute('data-bs-theme');
+            let newTheme = theme === 'dark' ? 'light' : 'dark';
+            
+            htmlElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            updateButtonStyle(newTheme);
+        });
+
+        function updateButtonStyle(theme) {
+            if (theme === 'dark') {
+                themeToggleBtn.classList.remove('btn-dark');
+                themeToggleBtn.classList.add('btn-light');
+            } else {
+                themeToggleBtn.classList.remove('btn-light');
+                themeToggleBtn.classList.add('btn-dark');
+            }
+        }
+    });
+</script>
+
 </body>
 </html>
