@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Campus Events</title>
+    <title>Events - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <script>
@@ -11,76 +11,49 @@
     </script>
 
     <style>
-        /* Fix Horizontal Scrollbar */
-        body {
-            overflow-x: hidden; 
-        }
-
-        /* Modern Card Styling (Light & Dark) */
+        body { overflow-x: hidden; }
         .event-card {
-            transition: all 0.3s ease;
-            border-radius: 16px;
+            border-radius: 15px;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
             border: 1px solid rgba(0,0,0,0.1);
         }
         .event-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important;
         }
         
-        /* Input Box Styling */
-        .form-control { border-radius: 10px; }
-
-        /* ==========================================
-           🌙 DARK MODE SPECIFIC OVERRIDES 
-           ========================================== */
-           
-        /* 1. Card Background & Borders */
+        /* 🌙 Dark Mode Overrides */
         [data-bs-theme="dark"] .event-card {
-            background-color: #2b3035; 
+            background-color: #2b3035;
             border: 1px solid #495057;
         }
-        [data-bs-theme="dark"] .event-card:hover {
-            box-shadow: 0 12px 24px rgba(0,0,0,0.6) !important;
-            border-color: #6c757d;
-        }
-        
-        /* 2. Make the Subtext & Description PURE WHITE */
-        [data-bs-theme="dark"] .event-card .text-secondary,
-        [data-bs-theme="dark"] .event-card .card-text {
-            color: #ffffff !important; 
-            font-weight: 500; 
-        }
-        
-        /* 3. Brighten the Event Title */
-        [data-bs-theme="dark"] .event-card .text-primary {
-            color: #6ea8fe !important; 
+        [data-bs-theme="dark"] .form-control {
+            background-color: #212529;
+            border-color: #495057;
+            color: #fff;
         }
     </style>
 </head>
-<body>
+<body class="bg-body-tertiary">
 
 <div class="container mt-5 mb-5">
 
-    <div class="row align-items-center mb-5 pb-3 border-bottom border-secondary-subtle">
-        
+    <div class="row align-items-center mb-4 pb-3 border-bottom border-secondary-subtle">
         <div class="col-md-4 text-start">
-            <h1 class="m-0 fw-bold">📅 Upcoming Events</h1>
+            <h1 class="m-0 fw-bold">📅 Campus Events</h1>
         </div>
         
-        <div class="col-md-4 d-flex justify-content-center">
-            <form th:action="@{/events}" method="get" class="d-flex w-100">
-                <input class="form-control me-2 shadow-sm" type="search" name="keyword" 
-                       th:value="${keyword}" placeholder="Search events..." aria-label="Search">
-                <button class="btn btn-primary shadow-sm px-4" type="submit">Search</button>
-                <a th:if="${keyword}" th:href="@{/events}" class="btn btn-outline-secondary ms-1 shadow-sm">Reset</a>
+        <div class="col-md-4">
+            <form th:action="@{/events}" method="get" class="d-flex shadow-sm">
+                <input class="form-control me-2 rounded-pill" type="search" name="keyword" th:value="${keyword}" placeholder="Search events..." aria-label="Search">
+                <button class="btn btn-primary rounded-pill px-4" type="submit">Search</button>
             </form>
         </div>
-        
-        <div class="col-md-4 d-flex justify-content-end align-items-center">
+
+        <div class="col-md-4 d-flex justify-content-end align-items-center mt-3 mt-md-0">
             <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
             <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
         </div>
-        
     </div>
 
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
@@ -92,107 +65,89 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="mb-5 p-4 rounded-4 shadow-sm" style="background-color: var(--bs-tertiary-bg);">
-        <h4 class="fw-bold mb-3">Post a New Event 📢</h4>
-        <form th:action="@{/events}" method="post">
-            <div class="row g-3 mb-3">
-                <div class="col-md-4">
-                    <input type="text" name="title" class="form-control shadow-sm" placeholder="Event Title (e.g. Hackathon)" required>
-                </div>
-                <div class="col-md-4">
-                    <input type="text" name="location" class="form-control shadow-sm" placeholder="Location (e.g. Lab 3)" required>
-                </div>
-                <div class="col-md-3">
-                    <input type="datetime-local" name="dateTime" class="form-control shadow-sm" required>
-                </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-success shadow-sm w-100 h-100 fw-bold">Post</button>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <textarea name="description" class="form-control shadow-sm" rows="2" placeholder="Description: What's happening? Who should come?" required></textarea>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="row mt-5">
+    <div class="row g-4 d-flex align-items-start">
         
-        <div class="col-md-6 mb-4" th:each="event : ${events}">
-            <div class="card h-100 event-card shadow-sm">
-                
-                <div class="card-body p-4">
-                    <h4 class="card-title fw-bold text-primary mb-3" th:text="${event.title}">Event Title</h4>
-                    
-                    <div class="d-flex align-items-center mb-3 text-secondary fw-medium">
-                        <span class="me-4">📍 <span th:text="${event.location}">Location</span></span>
-                        <span>🕒 <span th:text="${#temporals.format(event.dateTime, 'MMM d • h:mm a')}">Time</span></span>
+        <div class="col-lg-4 sticky-lg-top" style="top: 20px; z-index: 1;" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')">
+            <div class="card shadow-sm p-4" style="border-radius: 15px;">
+                <h4 class="fw-bold mb-4 text-primary">Post a New Event ✨</h4>
+                <form th:action="@{/events}" method="post">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Event Title</label>
+                        <input type="text" class="form-control shadow-sm" name="title" required placeholder="e.g. Spring Hackathon">
                     </div>
-                    
-                    <p class="card-text mt-2" th:text="${event.description}">Description goes here...</p>
-                </div>
-                
-                <div class="card-footer bg-transparent border-top-0 d-flex justify-content-between align-items-center p-4 pt-0">
-                    <a th:href="@{/register-event/{id}(id=${event.id})}" 
-                       class="btn btn-primary px-4 rounded-pill shadow-sm fw-bold">
-                       Register 🎟️
-                    </a>
-                    
-                    <a th:href="@{/delete-event/{id}(id=${event.id})}" 
-                       class="btn btn-outline-danger btn-sm rounded-pill px-3"
-                       onclick="return confirm('Are you sure you want to delete this event?');">
-                       Delete 🗑️
-                    </a>
-                </div>
-                
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Date & Time</label>
+                    <input type="datetime-local" class="form-control shadow-sm" name="dateTime" required>                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Location</label>
+                        <input type="text" class="form-control shadow-sm" name="location" required placeholder="e.g. Main Auditorium">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Description</label>
+                        <textarea class="form-control shadow-sm" name="description" rows="3" required placeholder="What is this event about?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill py-2">Publish Event</button>
+                </form>
             </div>
         </div>
 
-        <div class="col-12 text-center mt-4" th:if="${events.empty}">
-            <div class="p-5 shadow-sm rounded-4" style="background-color: var(--bs-tertiary-bg);">
-                <h3 class="fw-bold">No events found! 😴</h3>
-                <p class="text-secondary">Looks like there's nothing happening right now.</p>
-                <a th:if="${keyword}" th:href="@{/events}" class="btn btn-primary mt-2">Clear Search</a>
+        <div class="col">
+            
+            <div th:if="${events.empty}" class="text-center py-5">
+                <h3 class="text-secondary fw-bold">No events found! 🏜️</h3>
+                <p class="text-muted">Try adjusting your search or check back later.</p>
             </div>
+
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                <div class="col" th:each="event : ${events}">
+                    <div class="card event-card h-100 p-3">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-primary mb-2" th:text="${event.title}">Event Title</h5>
+                            
+                            <p class="card-text mb-1 text-secondary">
+                                📍 <span th:text="${event.location}">Location</span>
+                            </p>
+                            <p class="card-text mb-3 text-secondary">
+                            🕒 <span th:text="${event.dateTime}">Date</span>                            
+                            </p>    
+                            <p class="card-text flex-grow-1" th:text="${event.description}">Event description goes here.</p>
+                            
+                            <form th:action="@{/events/{id}/register(id=${event.id})}" method="post" class="mt-3">
+                                <button type="submit" class="btn btn-outline-primary w-100 fw-bold rounded-pill shadow-sm">Register Now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
+</div>
 
-</div> <script>
+<script>
     document.addEventListener('DOMContentLoaded', () => {
         const htmlElement = document.documentElement; 
         const themeToggleBtn = document.getElementById('darkModeToggle');
 
-        // 1. On load, check if they already chose a theme
         const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
         themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
         updateButtonStyle(currentTheme);
 
-        // 2. Listen for clicks on the toggle button
         themeToggleBtn.addEventListener('click', () => {
             let theme = htmlElement.getAttribute('data-bs-theme');
             let newTheme = theme === 'dark' ? 'light' : 'dark';
-            
-            // Apply the new theme
             htmlElement.setAttribute('data-bs-theme', newTheme);
-            
-            // Save it to the browser's memory
             localStorage.setItem('theme', newTheme);
-            
-            // Update the button icon and style
             themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
             updateButtonStyle(newTheme);
         });
 
-        // Helper to make the button look good in both modes
         function updateButtonStyle(theme) {
             if (theme === 'dark') {
-                themeToggleBtn.classList.remove('btn-dark');
-                themeToggleBtn.classList.add('btn-light');
+                themeToggleBtn.classList.replace('btn-dark', 'btn-light');
             } else {
-                themeToggleBtn.classList.remove('btn-light');
-                themeToggleBtn.classList.add('btn-dark');
+                themeToggleBtn.classList.replace('btn-light', 'btn-dark');
             }
         }
     });

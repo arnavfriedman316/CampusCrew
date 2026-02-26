@@ -2,6 +2,7 @@ package com.campuscrew.backend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,11 +22,13 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                // 1. Public pages (anyone can access these)
+                // 1. Public pages
                 .requestMatchers("/register", "/login", "/css/**", "/js/**", "/uploads/**").permitAll()
-                // 2. 👑 THE VAULT: Only the Super Admin can access anything that starts with /admin
+                // 2. 👑 THE VAULT: Only the Super Admin can access the admin dashboard
                 .requestMatchers("/admin/**").hasAuthority("ROLE_SUPER_ADMIN")
-                // 3. Everything else requires the user to be logged in
+                // 3. 📝 EVENT CREATION: Only Presidents and Super Admins can POST to /events
+                .requestMatchers(HttpMethod.POST, "/events").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")
+                // 4. Everything else requires the user to be logged in
                 .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -34,7 +37,7 @@ public class SecurityConfig {
                 .permitAll()
                 )
                 .logout(logout -> logout
-                .logoutUrl("/logout") // <--- This replaces the AntPathRequestMatcher!
+                .logoutUrl("/logout")
                 .logoutSuccessUrl("/login?logout")
                 .permitAll()
                 );
