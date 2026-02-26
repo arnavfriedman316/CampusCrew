@@ -165,7 +165,6 @@ public class EventController {
         if (principal == null) {
             return "redirect:/login";
         }
-
         // 2. Find the event they clicked on
         Events event = eventRepository.findById(id).orElse(null);
         if (event == null) {
@@ -187,6 +186,30 @@ public class EventController {
         eventRepository.save(event);
 
         redirectAttributes.addFlashAttribute("success", "Successfully registered for " + event.getTitle() + "! 🎉 Check 'My Tickets'!");
+        return "redirect:/events";
+    }
+
+    @PostMapping("/events/{id}/cancel")
+    public String cancelRegistration(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Events event = eventRepository.findById(id).orElse(null);
+        AppUser user = userRepository.findByEmail(principal.getName());
+
+        if (event != null && user != null) {
+            // Safely look through the attendees and remove the one that matches this user's ID
+            boolean removed = event.getAttendees().removeIf(attendee -> attendee.getId().equals(user.getId()));
+
+            if (removed) {
+                eventRepository.save(event);
+                redirectAttributes.addFlashAttribute("success", "Registration canceled for " + event.getTitle() + ". We'll catch you at the next one! 👋");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "You weren't registered for this event.");
+            }
+        }
+
         return "redirect:/events";
     }
 }

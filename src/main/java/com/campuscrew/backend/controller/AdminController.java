@@ -1,5 +1,6 @@
 package com.campuscrew.backend.controller;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +33,33 @@ public class AdminController {
 
     // 2. Change a user's role
     @PostMapping("/update-role")
-    public String updateUserRole(@RequestParam Long userId, @RequestParam String newRole, RedirectAttributes redirectAttributes) {
-        AppUser user = userRepository.findById(userId).orElse(null);
+    public String updateUserRole(@RequestParam Long userId, @RequestParam String newRole, Principal principal, RedirectAttributes redirectAttributes) {
+        AppUser targetUser = userRepository.findById(userId).orElse(null);
+        AppUser loggedInUser = userRepository.findByEmail(principal.getName());
 
-        if (user != null) {
-            user.setRole(newRole);
-            userRepository.save(user);
-            redirectAttributes.addFlashAttribute("success", "Successfully updated " + user.getFullName() + " to " + newRole + "! 🛡️");
+        if (targetUser != null && loggedInUser != null) {
+
+            // 🛑 SECURITY RULE 1: Presidents cannot edit an existing Super Admin
+            if (loggedInUser.getRole().equals("ROLE_PRESIDENT") && "ROLE_SUPER_ADMIN".equals(targetUser.getRole())) {
+                redirectAttributes.addFlashAttribute("error", "Access Denied: You cannot modify a Super Admin's account. 🛑");
+                return "redirect:/admin";
+            }
+
+            // 🛑 SECURITY RULE 2: Presidents cannot promote someone TO Super Admin
+            if (loggedInUser.getRole().equals("ROLE_PRESIDENT") && "ROLE_SUPER_ADMIN".equals(newRole)) {
+                redirectAttributes.addFlashAttribute("error", "Access Denied: Only a Super Admin can forge another Super Admin. 🛑");
+                return "redirect:/admin";
+            }
+
+            // If they pass the security checks, update the role!
+            targetUser.setRole(newRole);
+            userRepository.save(targetUser);
+            redirectAttributes.addFlashAttribute("success", "Successfully updated " + targetUser.getFullName() + " to " + newRole + "! 🛡️");
         } else {
             redirectAttributes.addFlashAttribute("error", "User not found!");
         }
 
         return "redirect:/admin";
     }
+
 }

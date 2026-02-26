@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Admin Dashboard - CampusCrew</title>
@@ -49,7 +49,8 @@
             <h1 class="m-0 fw-bold">👑 Admin Control</h1>
         </div>
         <div class="col-md-4 text-center">
-            <span class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">Super Admin Access</span>
+            <span sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">Super Admin Access</span>
+            <span sec:authorize="hasAuthority('ROLE_PRESIDENT') and !hasAuthority('ROLE_SUPER_ADMIN')" class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">President Access</span>
         </div>
         <div class="col-md-4 d-flex justify-content-end align-items-center">
             <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
@@ -104,20 +105,29 @@
                         </td>
                         
                         <td class="text-end">
-                            <form th:if="${u.email != 'admin@campuscrew.com'}" th:action="@{/admin/update-role}" method="post" class="d-flex justify-content-end align-items-center m-0">
-                                <input type="hidden" name="userId" th:value="${u.id}">
-                                
-                                <select class="form-select form-select-sm shadow-sm me-2" name="newRole" style="width: auto;">
-                                    <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER' || u.role == null}">User</option>
-                                    <option value="ROLE_MEMBER" th:selected="${u.role == 'ROLE_MEMBER'}">Member</option>
-                                    <option value="ROLE_MANAGER" th:selected="${u.role == 'ROLE_MANAGER'}">Manager</option>
-                                    <option value="ROLE_PRESIDENT" th:selected="${u.role == 'ROLE_PRESIDENT'}">President</option>
-                                    <option value="ROLE_SUPER_ADMIN" th:selected="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
-                                </select>
-                                
-                                <button type="submit" class="btn btn-sm btn-primary fw-bold shadow-sm">Update</button>
-                            </form>
-                            <span th:if="${u.email == 'admin@campuscrew.com'}" class="text-muted small fst-italic">Master Account</span>
+                            
+                            <div th:if="${u.role != 'ROLE_SUPER_ADMIN' or #authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')}">
+                                <form th:if="${u.email != 'admin@campuscrew.com'}" th:action="@{/admin/update-role}" method="post" class="d-flex justify-content-end align-items-center m-0">
+                                    <input type="hidden" name="userId" th:value="${u.id}">
+                                    
+                                    <select class="form-select form-select-sm shadow-sm me-2" name="newRole" style="width: auto;">
+                                        <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER' || u.role == null}">User</option>
+                                        <option value="ROLE_MEMBER" th:selected="${u.role == 'ROLE_MEMBER'}">Member</option>
+                                        <option value="ROLE_MANAGER" th:selected="${u.role == 'ROLE_MANAGER'}">Manager</option>
+                                        <option value="ROLE_PRESIDENT" th:selected="${u.role == 'ROLE_PRESIDENT'}">President</option>
+                                        
+                                        <option sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" value="ROLE_SUPER_ADMIN" th:selected="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
+                                    </select>
+                                    
+                                    <button type="submit" class="btn btn-sm btn-primary fw-bold shadow-sm">Update</button>
+                                </form>
+                                <span th:if="${u.email == 'admin@campuscrew.com'}" class="text-muted small fst-italic">Master Account</span>
+                            </div>
+                            
+                            <div th:if="${u.role == 'ROLE_SUPER_ADMIN' and !#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')}">
+                                <span class="text-danger small fw-bold border border-danger rounded-pill px-2 py-1">🔒 Protected</span>
+                            </div>
+
                         </td>
                         
                     </tr>
