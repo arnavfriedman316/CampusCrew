@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -36,23 +34,26 @@ public class EventController {
     private UserRepository userRepository;
 
     @Autowired
+    private com.campuscrew.backend.repository.ClubRepository clubRepository;
+
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     // ==========================================
     // 1. VIEW ALL EVENTS & SEARCH
     // ==========================================
     @GetMapping("/events")
-    public String listEvents(Model model, @RequestParam(value = "keyword", required = false) String keyword) {
-        List<Events> events;
-        // If the user typed something in the search bar, filter it!
-        if (keyword != null && !keyword.isEmpty()) {
-            events = eventRepository.findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(keyword, keyword);
-            model.addAttribute("keyword", keyword);
+    public String listEvents(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
+        if (keyword != null) {
+            model.addAttribute("events", eventRepository.findByTitleContainingIgnoreCase(keyword));
         } else {
-            // Otherwise, show everything
-            events = eventRepository.findAll();
+            model.addAttribute("events", eventRepository.findAll());
         }
-        model.addAttribute("events", events);
+        model.addAttribute("keyword", keyword);
+
+        // 🌟 NEW LINE: Send the clubs to the frontend dropdown
+        model.addAttribute("clubs", clubRepository.findAll());
+
         return "events";
     }
 
@@ -60,8 +61,21 @@ public class EventController {
     // 2. POST A NEW EVENT
     // ==========================================
     @PostMapping("/events")
-    public String createEvent(@ModelAttribute Events event) {
+    public String createEvent(@RequestParam String title, @RequestParam String dateTime, @RequestParam String location, @RequestParam String description, @RequestParam Long clubId, RedirectAttributes redirectAttributes) {
+        Events event = new Events();
+        event.setTitle(title);
+
+        // Spring handles converting the HTML datetime string into a LocalDateTime
+        event.setDateTime(java.time.LocalDateTime.parse(dateTime));
+        event.setLocation(location);
+        event.setDescription(description);
+
+        // 🌟 FIND THE CLUB AND ATTACH IT TO THE EVENT!
+        com.campuscrew.backend.entity.Club hostingClub = clubRepository.findById(clubId).orElse(null);
+        event.setClub(hostingClub);
+
         eventRepository.save(event);
+        redirectAttributes.addFlashAttribute("success", "Event published successfully! 🎉");
         return "redirect:/events";
     }
 

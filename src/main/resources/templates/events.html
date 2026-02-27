@@ -27,7 +27,7 @@
             background-color: #2b3035;
             border: 1px solid #495057;
         }
-        [data-bs-theme="dark"] .form-control {
+        [data-bs-theme="dark"] .form-control, [data-bs-theme="dark"] .form-select {
             background-color: #212529;
             border-color: #495057;
             color: #fff;
@@ -56,6 +56,7 @@
         </div>
 
         <div class="col-md-4 d-flex justify-content-end align-items-center mt-3 mt-md-0">
+            <a href="/clubs" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="btn btn-outline-primary shadow-sm px-3 me-2">Clubs</a>
             <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
             <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
         </div>
@@ -76,6 +77,15 @@
             <div class="card shadow-sm p-4" style="border-radius: 15px;">
                 <h4 class="fw-bold mb-4 text-primary">Post a New Event ✨</h4>
                 <form th:action="@{/events}" method="post">
+                    
+                    <div class="mb-3 border-bottom pb-3">
+                        <label class="form-label fw-bold text-primary">Host Organization (Club)</label>
+                        <select class="form-select shadow-sm fw-bold" name="clubId" required>
+                            <option value="" disabled selected>Select the hosting club...</option>
+                            <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
+                        </select>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label fw-bold text-secondary">Event Title</label>
                         <input type="text" class="form-control shadow-sm" name="title" required placeholder="e.g. Spring Hackathon">
@@ -98,7 +108,6 @@
         </div>
 
         <div class="col">
-            
             <div th:if="${events.empty}" class="text-center py-5">
                 <h3 class="text-secondary fw-bold">No events found! 🏜️</h3>
                 <p class="text-muted">Try adjusting your search or check back later.</p>
@@ -106,17 +115,24 @@
 
             <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
                 <div class="col" th:each="event : ${events}">
-                    <div class="card event-card h-100 p-3">
+                    
+                    <div class="card event-card h-100 p-3 border-0 shadow-sm" 
+                         th:style="'border-top: 5px solid ' + (${event.club != null ? event.club.themeColor : '#6c757d'}) + ' !important;'">
+                        
                         <div class="card-body d-flex flex-column">
-                            <h5 class="card-title fw-bold text-primary mb-2" th:text="${event.title}">Event Title</h5>
                             
-                            <p class="card-text mb-1 text-secondary">
-                                📍 <span th:text="${event.location}">Location</span>
-                            </p>
-                            <p class="card-text mb-3 text-secondary">
-                                🕒 <span th:text="${event.dateTime}">Date</span>
-                            </p>
+                            <div class="mb-2">
+                                <span class="badge rounded-pill shadow-sm py-1 px-3"
+                                      th:style="'background-color: ' + (${event.club != null ? event.club.themeColor : '#6c757d'}) + ';'"
+                                      th:text="${event.club != null ? event.club.name : 'General Event'}">Club Name</span>
+                            </div>
+
+                            <h5 class="card-title fw-bold mb-3 mt-1" 
+                                th:style="'color: ' + (${event.club != null ? event.club.themeColor : '#0d6efd'}) + ';'" 
+                                th:text="${event.title}">Event Title</h5>
                             
+                            <p class="card-text mb-1 text-secondary">📍 <span th:text="${event.location}">Location</span></p>
+                            <p class="card-text mb-3 text-secondary">🕒 <span th:text="${event.dateTime}">Date</span></p>
                             <p class="card-text flex-grow-1" th:text="${event.description}">Event description goes here.</p>
                             
                             <div class="mt-3" th:with="isRegistered=${event.attendees.?[email == #authentication.name].size() > 0}">
@@ -129,7 +145,7 @@
                             </div>
                             
                             <button sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" 
-                                    class="btn btn-info w-100 fw-bold rounded-pill shadow-sm mt-2 text-dark"
+                                    class="btn btn-light border border-secondary-subtle w-100 fw-bold rounded-pill shadow-sm mt-2"
                                     data-bs-toggle="modal" 
                                     th:data-bs-target="'#guestListModal' + ${event.id}">
                                 📋 View Guest List (<span th:text="${event.attendees.size()}"></span>)
@@ -146,12 +162,10 @@
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    
                                     <div th:if="${event.attendees.empty}" class="text-center py-4">
                                         <h4 class="text-muted">🦗 *crickets*</h4>
                                         <p class="text-secondary m-0">No one has registered for this event yet.</p>
                                     </div>
-
                                     <ul class="list-group list-group-flush" th:unless="${event.attendees.empty}">
                                         <li class="list-group-item d-flex align-items-center py-3" th:each="guest : ${event.attendees}">
                                             <img th:src="${guest.profilePhotoUrl != null ? guest.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + guest.fullName + '&background=random&size=50'}" 
@@ -162,7 +176,6 @@
                                             </div>
                                         </li>
                                     </ul>
-
                                 </div>
                                 <div class="modal-footer border-top-0 pt-0">
                                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
@@ -184,8 +197,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         const htmlElement = document.documentElement; 
         const themeToggleBtn = document.getElementById('darkModeToggle');
-
         const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
+        
         themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
         updateButtonStyle(currentTheme);
 
@@ -201,7 +214,6 @@
         function updateButtonStyle(theme) {
             if (theme === 'dark') {
                 themeToggleBtn.classList.replace('btn-dark', 'btn-light');
-                // Ensure modal title looks good in dark mode
                 document.querySelectorAll('.dark-text-light').forEach(el => el.classList.replace('text-dark', 'text-light'));
             } else {
                 themeToggleBtn.classList.replace('btn-light', 'btn-dark');

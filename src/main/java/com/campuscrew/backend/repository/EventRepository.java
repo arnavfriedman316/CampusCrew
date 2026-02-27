@@ -16,4 +16,6 @@ public interface EventRepository extends JpaRepository<Events, Long> {
     // This will allow user to find the events, like by searching them
     List<Events> findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(String title, String location);
 
+    List<Events> findByTitleContainingIgnoreCase(String keyword);
+
 }
