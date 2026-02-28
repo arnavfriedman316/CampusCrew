@@ -1,3 +1,41 @@
+📝 CampusCrew Release Notes: v2.0 (The Club & VIP Update)
+---------------------------------------------------------
+✨ Major Features & Architecture
+-
+The Multi-Tenant Club Ecosystem: Transitioned the platform from a single global feed to a multi-tenant architecture. Super Admins can now forge specific, isolated Organizations (e.g., "Swaragini", "NSS", "Wizards").
+
+Smart Ticket Registration: Built a robust Many-to-Many backend relationship allowing users to register for events.
+
+Dynamic Button Toggling: The frontend now actively queries the database on page load. If a user is registered, the "Register" button seamlessly transforms into a red "Cancel Ticket" button to prevent duplicate sign-ups.
+
+Leadership VIP Guest Lists: Added a sleek, hidden Bootstrap Modal to event cards. Restricted to ROLE_MANAGER, ROLE_PRESIDENT, and ROLE_SUPER_ADMIN, this popup reveals a real-time guest list complete with user avatars, names, and emails.
+
+🎨 UI & Design Magic
+-
+Dynamic CSS Injection: Event cards now automatically paint their borders, titles, and badges using the custom Hex Color code assigned to their host Club.
+
+The "Invisible Wall" Layout: Built a responsive Flexbox grid on the Events page. When a normal user logs in, the "Create Event" form completely vanishes, and the event feed automatically expands to take up the 100% of the screen width.
+
+Club Control Room: Created a dedicated /clubs dashboard featuring native HTML color-pickers for live theme editing.
+
+🔒 Security & Role-Based Access Control (RBAC)
+-
+Ironclad Admin Hierarchy: Upgraded the /admin panel to allow Presidents to manage general users. However, a strict backend vault was installed to prevent Presidents from editing, deleting, or promoting anyone to ROLE_SUPER_ADMIN.
+
+Visual Lockouts: The Master Admin account now renders as "🔒 Protected" when viewed by lower-tier leadership.
+
+Thymeleaf Security Integration: Implemented the thymeleaf-extras-springsecurity6 dictionary to deeply bind HTML elements to backend Java security states.
+
+🐛 Bug Fixes & Optimizations
+-
+Squashed the SpEL 500 Error: Fixed a critical crash caused by Spring Expression Language (SpEL) mismatching date vs dateTime variables during page rendering.
+
+Nested Form Routing: Cleaned up HTML structure to resolve an issue where clicking "Cancel Ticket" accidentally triggered the "Register" backend route.
+
+Missing Search Query Exception: Added the missing findByTitleContainingIgnoreCase method to the Repository, allowing the search bar to properly query the database.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
 📦 Beta 4.0: Secure Profiles & Image Uploads (Current State)
 -------------------------------------------------------------
 The massive backend and frontend update to support user personalization.
