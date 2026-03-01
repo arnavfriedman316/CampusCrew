@@ -1,3 +1,5 @@
+NEW FEATURES SOON!1!1!
+======================
 📝 CampusCrew Release Notes: v2.0 (The Club & VIP Update)
 ---------------------------------------------------------
 ✨ Major Features & Architecture
