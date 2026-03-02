@@ -8,7 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -22,6 +24,10 @@ public class AppUser {
     private String fullName;
     private String bio;
     private String role;
+
+    @ManyToOne
+    @JoinColumn(name = "managed_club_id")
+    private Club managedClub;
 
     // 📸 NEW: This stores the file path to the user's uploaded profile picture
     private String profilePhotoUrl;
@@ -103,5 +109,12 @@ public class AppUser {
 
     public void setEvents(List<Events> events) {
         this.events = events;
+    }
+    public Club getManagedClub() {
+        return managedClub;
+    }
+
+    public void setManagedClub(Club managedClub) {
+        this.managedClub = managedClub;
     }
 }

@@ -111,13 +111,21 @@
                                     <input type="hidden" name="userId" th:value="${u.id}">
                                     
                                     <select class="form-select form-select-sm shadow-sm me-2" name="newRole" style="width: auto;">
-                                        <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER' || u.role == null}">User</option>
-                                        <option value="ROLE_MEMBER" th:selected="${u.role == 'ROLE_MEMBER'}">Member</option>
-                                        <option value="ROLE_MANAGER" th:selected="${u.role == 'ROLE_MANAGER'}">Manager</option>
-                                        <option value="ROLE_PRESIDENT" th:selected="${u.role == 'ROLE_PRESIDENT'}">President</option>
-                                        
-                                        <option sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" value="ROLE_SUPER_ADMIN" th:selected="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
-                                    </select>
+    <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER' || u.role == null}">User</option>
+    <option value="ROLE_MEMBER" th:selected="${u.role == 'ROLE_MEMBER'}">Member</option>
+    <option value="ROLE_MANAGER" th:selected="${u.role == 'ROLE_MANAGER'}">Manager</option>
+    <option value="ROLE_PRESIDENT" th:selected="${u.role == 'ROLE_PRESIDENT'}">President</option>
+    <option sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" value="ROLE_SUPER_ADMIN" th:selected="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
+</select>
+
+                                <select class="form-select form-select-sm shadow-sm me-2" name="managedClubId" style="width: auto;">
+                                <option value="">-- No Club Assigned --</option>
+                                <option th:each="c : ${clubs}" 
+                                    th:value="${c.id}" 
+                                    th:text="${c.name}" 
+                                    th:selected="${u.managedClub != null and u.managedClub.id == c.id}">
+                                </option>
+                                </select>
                                     
                                     <button type="submit" class="btn btn-sm btn-primary fw-bold shadow-sm">Update</button>
                                 </form>

@@ -43,7 +43,7 @@ public class EventController {
     // 1. VIEW ALL EVENTS & SEARCH
     // ==========================================
     @GetMapping("/events")
-    public String listEvents(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
+    public String listEvents(@RequestParam(value = "keyword", required = false) String keyword, Model model, Principal principal) {
         if (keyword != null) {
             model.addAttribute("events", eventRepository.findByTitleContainingIgnoreCase(keyword));
         } else {
@@ -51,8 +51,20 @@ public class EventController {
         }
         model.addAttribute("keyword", keyword);
 
-        // 🌟 NEW LINE: Send the clubs to the frontend dropdown
-        model.addAttribute("clubs", clubRepository.findAll());
+        // --- NEW MAGIC: Smart Club Filtering ---
+        if (principal != null) {
+            AppUser currentUser = userRepository.findByEmail(principal.getName());
+            if (currentUser.getRole() != null && currentUser.getRole().equals("ROLE_SUPER_ADMIN")) {
+                // Super Admins can post for ANY club
+                model.addAttribute("clubs", clubRepository.findAll());
+            } else if (currentUser.getManagedClub() != null) {
+                // Presidents can ONLY post for their assigned club!
+                model.addAttribute("clubs", java.util.List.of(currentUser.getManagedClub()));
+            } else {
+                // Normal users or Presidents with no club assigned get an empty list
+                model.addAttribute("clubs", java.util.List.of());
+            }
+        }
 
         return "events";
     }
