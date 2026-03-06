@@ -24,10 +24,21 @@ public class AdminController {
     private ClubRepository clubRepository;
 
     // Load the Admin Dashboard
+    // Load the Admin Dashboard (Now with Search!)
     @GetMapping("/admin")
-    public String adminDashboard(Model model) {
-        model.addAttribute("users", userRepository.findAll());
+    public String adminDashboard(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
+
+        // If the admin typed something in the search bar, filter the users
+        if (keyword != null && !keyword.isEmpty()) {
+            model.addAttribute("users", userRepository.findByFullNameContainingIgnoreCaseOrEmailContainingIgnoreCase(keyword, keyword));
+        } else {
+            // Otherwise, show everyone
+            model.addAttribute("users", userRepository.findAll());
+        }
+
+        model.addAttribute("keyword", keyword); // Saves their search term in the box
         model.addAttribute("clubs", clubRepository.findAll());
+
         return "admin";
     }
 
