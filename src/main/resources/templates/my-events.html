@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>My Tickets - CampusCrew</title>
@@ -9,130 +9,59 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
-
     <style>
-        body { overflow-x: hidden; }
-
-        /* Modern Card Styling */
-        .event-card {
-            transition: all 0.3s ease;
-            border-radius: 16px;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 24px rgba(0,0,0,0.1) !important;
-        }
-
-        /* 🌙 Dark Mode Overrides */
-        [data-bs-theme="dark"] .event-card {
-            background-color: #2b3035; 
-            /* Making the border slightly darker in dark mode for a sleek look */
-            border: 2px solid #375a7f !important; 
-        }
-        [data-bs-theme="dark"] .event-card:hover {
-            box-shadow: 0 12px 24px rgba(0,0,0,0.6) !important;
-            border-color: #6ea8fe !important;
-        }
-        
-        /* High contrast text for Dark Mode */
-        [data-bs-theme="dark"] .event-card .text-secondary,
-        [data-bs-theme="dark"] .event-card .card-text {
-            color: #ffffff !important; 
-            font-weight: 500; 
-        }
-        [data-bs-theme="dark"] .event-card .text-primary {
-            color: #6ea8fe !important; 
-        }
+        .ticket-card { border-radius: 15px; border: 1px dashed #6c757d; }
+        [data-bs-theme="dark"] .ticket-card { background-color: #2b3035; border-color: #495057; }
     </style>
 </head>
-<body>
+<body class="bg-body-tertiary">
 
 <div class="container mt-5 mb-5">
-
-    <div class="row align-items-center mb-5 pb-3 border-bottom border-secondary-subtle">
-        
-        <div class="col-md-4 text-start">
-            <h1 class="m-0 fw-bold">🎟️ My Tickets</h1>
+    <div class="row align-items-center mb-4 pb-3 border-bottom border-secondary-subtle">
+        <div class="col-md-6">
+            <h1 class="m-0 fw-bold">🎫 My Tickets</h1>
+            <p class="text-muted mb-0">Events you are registered to attend.</p>
         </div>
-        
-        <div class="col-md-4">
-        </div>
-        
-        <div class="col-md-4 d-flex justify-content-end align-items-center">
-            <a href="/events" class="btn btn-outline-primary shadow-sm px-4 me-2">Browse Events</a>
+        <div class="col-md-6 text-end">
+            <a href="/events" class="btn btn-primary shadow-sm px-4 me-2">Browse All Events</a>
             <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
-            <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
         </div>
-        
     </div>
 
-    <div class="row mt-5">
-        
-        <div class="col-md-6 mb-4" th:each="event : ${events}">
-            <div class="card h-100 event-card shadow-sm border-primary border-2">
-                
-                <div class="card-body p-4">
-                    <span class="badge bg-primary mb-3 px-3 py-2 rounded-pill shadow-sm">Confirmed Ticket ✓</span>
-                    
-                    <h4 class="card-title fw-bold text-primary mb-3" th:text="${event.title}">Event Title</h4>
-                    
-                    <div class="d-flex align-items-center mb-3 text-secondary fw-medium">
-                        <span class="me-4">📍 <span th:text="${event.location}">Location</span></span>
-                        <span>🕒 <span th:text="${#temporals.format(event.dateTime, 'MMM d • h:mm a')}">Time</span></span>
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+        <strong th:text="${success}">Success!</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div th:if="${events.empty}" class="text-center py-5">
+        <h3 class="text-secondary fw-bold">No tickets yet! 🎟️</h3>
+        <p class="text-muted">Head over to the Events page to find something fun to do.</p>
+        <a href="/events" class="btn btn-primary rounded-pill mt-3 px-4">Find Events</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div class="col" th:each="event : ${events}">
+            <div class="card ticket-card h-100 p-3 shadow-sm" th:style="'border-top: 5px solid ' + (${event.club != null ? event.club.themeColor : '#0d6efd'}) + ' !important;'">
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-2">
+                        <span class="badge rounded-pill shadow-sm py-1 px-3"
+                              th:style="'background-color: ' + (${event.club != null ? event.club.themeColor : '#0d6efd'}) + ';'"
+                              th:text="${event.club != null ? event.club.name : 'General'}">Club</span>
                     </div>
+                    <h5 class="card-title fw-bold mb-3 mt-1" th:text="${event.title}">Event Title</h5>
+                    <p class="card-text mb-1 text-secondary">📍 <span th:text="${event.location}">Location</span></p>
+                    <p class="card-text mb-3 text-secondary">🕒 <span th:text="${event.dateTime}">Date</span></p>
                     
-                    <p class="card-text mt-2" th:text="${event.description}">Description goes here...</p>
+                    <div class="mt-auto pt-3 border-top">
+                        <form th:action="@{/events/{id}/cancel(id=${event.id})}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-danger w-100 fw-bold rounded-pill shadow-sm">Cancel Registration</button>
+                        </form>
+                    </div>
                 </div>
-                
             </div>
         </div>
-
-        <div class="col-12 text-center mt-4" th:if="${events.empty}">
-            <div class="p-5 shadow-sm rounded-4" style="background-color: var(--bs-tertiary-bg);">
-                <h1 class="display-1 mb-3">🎫</h1>
-                <h3 class="fw-bold">No tickets yet!</h3>
-                <p class="text-secondary">You haven't registered for any upcoming events.</p>
-                <a th:href="@{/events}" class="btn btn-primary mt-3 px-4 py-2 rounded-pill fw-bold shadow-sm">Find an Event</a>
-            </div>
-        </div>
-
     </div>
-
-</div> <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const htmlElement = document.documentElement; 
-        const themeToggleBtn = document.getElementById('darkModeToggle');
-
-        // 1. On load, check if they already chose a theme
-        const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
-        themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
-        updateButtonStyle(currentTheme);
-
-        // 2. Listen for clicks on the toggle button
-        themeToggleBtn.addEventListener('click', () => {
-            let theme = htmlElement.getAttribute('data-bs-theme');
-            let newTheme = theme === 'dark' ? 'light' : 'dark';
-            
-            htmlElement.setAttribute('data-bs-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-            updateButtonStyle(newTheme);
-        });
-
-        // Helper to make the button look good in both modes
-        function updateButtonStyle(theme) {
-            if (theme === 'dark') {
-                themeToggleBtn.classList.remove('btn-dark');
-                themeToggleBtn.classList.add('btn-light');
-            } else {
-                themeToggleBtn.classList.remove('btn-light');
-                themeToggleBtn.classList.add('btn-dark');
-            }
-        }
-    });
-</script>
+</div>
 
 </body>
 </html>

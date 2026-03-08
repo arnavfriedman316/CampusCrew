@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.entity.Events;
 
 @Repository
@@ -17,5 +18,8 @@ public interface EventRepository extends JpaRepository<Events, Long> {
     List<Events> findByTitleContainingIgnoreCaseOrLocationContainingIgnoreCase(String title, String location);
 
     List<Events> findByTitleContainingIgnoreCase(String keyword);
+
+    // Find all events where this specific user is in the attendees list
+    List<Events> findByAttendeesContaining(AppUser user);
 
 }
