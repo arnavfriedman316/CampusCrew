@@ -2,59 +2,37 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard - CampusCrew</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <title>Admin Panel - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
-
+    
     <style>
-        body { overflow-x: hidden; }
-
-        .admin-card {
-            border-radius: 20px;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        /* 🌙 Dark Mode Overrides */
-        [data-bs-theme="dark"] .admin-card {
-            background-color: #2b3035;
-            border: 1px solid #495057;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3) !important;
-        }
-        [data-bs-theme="dark"] .table {
-            --bs-table-bg: transparent;
-            --bs-table-color: #fff;
-        }
-        [data-bs-theme="dark"] .form-select {
-            background-color: #212529;
-            border-color: #495057;
-            color: #fff;
-        }
-        
-        .role-badge {
-            font-size: 0.85em;
-            padding: 0.5em 0.8em;
-        }
+        [data-bs-theme="dark"] .card { background-color: #2b3035; border-color: #495057 !important; }
+        /* Ensures the table looks good in dark mode */
+        [data-bs-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: #f8f9fa; border-color: #495057; }
+        [data-bs-theme="dark"] .table-hover>tbody>tr:hover>* { --bs-table-bg-state: rgba(255,255,255,0.05); color: #fff; }
     </style>
 </head>
-<body>
+<body class="bg-body-tertiary">
 
-<div class="container mt-5 mb-5">
-
-    <div class="row align-items-center mb-5 pb-3 border-bottom border-secondary-subtle">
-        <div class="col-md-4 text-start">
-            <h1 class="m-0 fw-bold">👑 Admin Control</h1>
+<div class="container mt-4 mb-5">
+    
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gap-3">
+        <div class="text-center text-md-start">
+            <h2 class="m-0 fw-bold text-danger">⚙️ Admin Panel</h2>
+            <p class="text-muted mb-0 small">Manage users and platform access.</p>
         </div>
-        <div class="col-md-4 text-center">
-            <span sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">Super Admin Access</span>
-            <span sec:authorize="hasAuthority('ROLE_PRESIDENT') and !hasAuthority('ROLE_SUPER_ADMIN')" class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">President Access</span>
-        </div>
-        <div class="col-md-4 d-flex justify-content-end align-items-center">
-            <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
-            <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+        
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
+            <a href="/clubs" class="btn btn-warning btn-sm shadow-sm px-3 rounded-pill fw-bold text-dark">🛡️ Manage Clubs</a>
+            <a href="/" class="btn btn-outline-secondary btn-sm shadow-sm px-3 rounded-pill">Dashboard</a>
+            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 36px; height: 36px;">🌙</button>
         </div>
     </div>
 
@@ -66,86 +44,56 @@
         <strong th:text="${error}">Error!</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <form th:action="@{/admin}" method="get" class="d-flex shadow-sm">
-                <input class="form-control me-2 rounded-pill" type="search" name="keyword" th:value="${keyword}" placeholder="Search users by name or email..." aria-label="Search">
-                <button class="btn btn-primary rounded-pill px-4 fw-bold" type="submit">Search</button>
-                <a th:if="${keyword != null and keyword != ''}" th:href="@{/admin}" class="btn btn-outline-secondary rounded-pill px-4 ms-2 fw-bold">Clear</a>
-            </form>
-        </div>
-    </div>
-    <div class="card admin-card shadow-sm p-4">
-        <h4 class="fw-bold mb-4">Platform Users</h4>
+
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
         
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light rounded-top">
+            <table class="table table-hover align-middle mb-0 text-nowrap">
+                <thead class="table-dark">
                     <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Current Role</th>
-                        <th scope="col" class="text-end">Assign New Role</th>
+                        <th class="px-4 py-3">ID</th>
+                        <th class="py-3">User</th>
+                        <th class="py-3">Email</th>
+                        <th class="py-3">Role</th>
+                        <th class="px-4 py-3 text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="border-top-0">
-                    <tr th:each="u : ${users}">
-                        
-                        <td class="fw-bold">
-                            <img th:src="${u.profilePhotoUrl != null ? u.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + u.fullName + '&background=random&size=64'}" 
-                                 alt="Avatar" class="rounded-circle me-2 object-fit-cover" style="width: 40px; height: 40px;">
-                            <span th:text="${u.fullName}">User Name</span>
-                        </td>
-                        
-                        <td class="text-secondary" th:text="${u.email}">email@example.com</td>
+                <tbody>
+                    <tr th:if="${users == null or users.empty}">
+                        <td colspan="5" class="text-center py-5 text-muted fw-bold">No users found in the system.</td>
+                    </tr>
+                    
+                    <tr th:each="user : ${users}">
+                        <td class="px-4 fw-bold text-secondary" th:text="${user.id}">1</td>
                         
                         <td>
-                            <span class="badge bg-primary rounded-pill role-badge shadow-sm" 
-                                  th:if="${u.role == 'ROLE_USER' || u.role == null}">User</span>
-                            <span class="badge bg-success rounded-pill role-badge shadow-sm" 
-                                  th:if="${u.role == 'ROLE_MEMBER'}">Member</span>
-                            <span class="badge bg-info text-dark rounded-pill role-badge shadow-sm" 
-                                  th:if="${u.role == 'ROLE_MANAGER'}">Manager</span>
-                            <span class="badge bg-warning text-dark rounded-pill role-badge shadow-sm" 
-                                  th:if="${u.role == 'ROLE_PRESIDENT'}">President</span>
-                            <span class="badge bg-danger rounded-pill role-badge shadow-sm" 
-                                  th:if="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</span>
+                            <div class="d-flex align-items-center">
+                                <img th:src="${user.profilePhotoUrl != null ? user.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=random'}" 
+                                     alt="Avatar" class="rounded-circle me-2 object-fit-cover shadow-sm" style="width: 35px; height: 35px;">
+                                <span class="fw-bold" th:text="${user.fullName}">User Name</span>
+                            </div>
                         </td>
                         
-                        <td class="text-end">
-                            
-                            <div th:if="${u.role != 'ROLE_SUPER_ADMIN' or #authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')}">
-                                <form th:if="${u.email != 'admin@campuscrew.com'}" th:action="@{/admin/update-role}" method="post" class="d-flex justify-content-end align-items-center m-0">
-                                    <input type="hidden" name="userId" th:value="${u.id}">
-                                    
-                                    <select class="form-select form-select-sm shadow-sm me-2" name="newRole" style="width: auto;">
-    <option value="ROLE_USER" th:selected="${u.role == 'ROLE_USER' || u.role == null}">User</option>
-    <option value="ROLE_MEMBER" th:selected="${u.role == 'ROLE_MEMBER'}">Member</option>
-    <option value="ROLE_MANAGER" th:selected="${u.role == 'ROLE_MANAGER'}">Manager</option>
-    <option value="ROLE_PRESIDENT" th:selected="${u.role == 'ROLE_PRESIDENT'}">President</option>
-    <option sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" value="ROLE_SUPER_ADMIN" th:selected="${u.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
-</select>
-
-                                <select class="form-select form-select-sm shadow-sm me-2" name="managedClubId" style="width: auto;">
-                                <option value="">-- No Club Assigned --</option>
-                                <option th:each="c : ${clubs}" 
-                                    th:value="${c.id}" 
-                                    th:text="${c.name}" 
-                                    th:selected="${u.managedClub != null and u.managedClub.id == c.id}">
-                                </option>
+                        <td class="text-secondary small" th:text="${user.email}">user@email.com</td>
+                        
+                        <td>
+                            <form th:action="@{/admin/users/{id}/role(id=${user.id})}" method="post" class="d-flex gap-2 m-0 align-items-center">
+                                <select class="form-select form-select-sm shadow-sm" name="role" style="min-width: 140px;">
+                                    <option value="ROLE_USER" th:selected="${user.role == 'ROLE_USER'}">User</option>
+                                    <option value="ROLE_PRESIDENT" th:selected="${user.role == 'ROLE_PRESIDENT'}">President</option>
+                                    <option value="ROLE_SUPER_ADMIN" th:selected="${user.role == 'ROLE_SUPER_ADMIN'}">Super Admin</option>
                                 </select>
-                                    
-                                    <button type="submit" class="btn btn-sm btn-primary fw-bold shadow-sm">Update</button>
-                                </form>
-                                <span th:if="${u.email == 'admin@campuscrew.com'}" class="text-muted small fst-italic">Master Account</span>
-                            </div>
-                            
-                            <div th:if="${u.role == 'ROLE_SUPER_ADMIN' and !#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')}">
-                                <span class="text-danger small fw-bold border border-danger rounded-pill px-2 py-1">🔒 Protected</span>
-                            </div>
-
+                                <button type="submit" class="btn btn-primary btn-sm fw-bold rounded px-3 shadow-sm">Save</button>
+                            </form>
                         </td>
                         
+                        <td class="px-4 text-end">
+                            <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post" class="m-0" onsubmit="return confirm('WARNING: Are you sure you want to delete this user? This action cannot be undone.');">
+                                <button type="submit" class="btn btn-danger btn-sm fw-bold rounded shadow-sm px-3">
+                                    🗑️ Delete
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -154,14 +102,15 @@
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const htmlElement = document.documentElement; 
         const themeToggleBtn = document.getElementById('darkModeToggle');
-
         const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
+        
         themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
-        updateButtonStyle(currentTheme);
 
         themeToggleBtn.addEventListener('click', () => {
             let theme = htmlElement.getAttribute('data-bs-theme');
@@ -169,16 +118,7 @@
             htmlElement.setAttribute('data-bs-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-            updateButtonStyle(newTheme);
         });
-
-        function updateButtonStyle(theme) {
-            if (theme === 'dark') {
-                themeToggleBtn.classList.replace('btn-dark', 'btn-light');
-            } else {
-                themeToggleBtn.classList.replace('btn-light', 'btn-dark');
-            }
-        }
     });
 </script>
 

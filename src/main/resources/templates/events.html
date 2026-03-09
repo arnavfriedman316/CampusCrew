@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <title>Events - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -41,85 +43,51 @@
 </head>
 <body class="bg-body-tertiary">
 
-<div class="container mt-5 mb-5">
+<div class="container mt-4 mb-5">
 
-    <div class="row align-items-center mb-4 pb-3 border-bottom border-secondary-subtle">
-        <div class="col-md-4 text-start">
-            <h1 class="m-0 fw-bold">📅 Campus Events</h1>
+    <div class="row align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gy-3">
+        <div class="col-12 col-md-4 text-center text-md-start">
+            <h2 class="m-0 fw-bold">📅 Campus Events</h2>
         </div>
         
-        <div class="col-md-4">
+        <div class="col-12 col-md-4">
             <form th:action="@{/events}" method="get" class="d-flex shadow-sm">
-                <input class="form-control me-2 rounded-pill" type="search" name="keyword" th:value="${keyword}" placeholder="Search events..." aria-label="Search">
-                <button class="btn btn-primary rounded-pill px-4" type="submit">Search</button>
+                <input class="form-control me-2 rounded-pill shadow-sm" type="search" name="keyword" th:value="${keyword}" placeholder="Search events...">
+                <button class="btn btn-primary rounded-pill px-4 fw-bold" type="submit">Search</button>
             </form>
         </div>
 
-        <div class="col-md-4 d-flex justify-content-end align-items-center mt-3 mt-md-0">
-            <a href="/clubs" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="btn btn-outline-primary shadow-sm px-3 me-2">Clubs</a>
-            <a href="/" class="btn btn-outline-secondary shadow-sm px-4">Dashboard</a>
-            <button class="btn btn-dark ms-3 shadow-sm" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+        <div class="col-12 col-md-4 d-flex flex-wrap justify-content-center justify-content-md-end align-items-center gap-2">
+            <a href="/clubs" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="btn btn-outline-primary btn-sm shadow-sm px-3 rounded-pill fw-bold">Clubs</a>
+            <a href="/" class="btn btn-outline-secondary btn-sm shadow-sm px-3 rounded-pill fw-bold">Dashboard</a>
+            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 38px; height: 38px;">🌙</button>
         </div>
     </div>
 
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 text-center" role="alert">
         <strong th:text="${success}">Success!</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 text-center" role="alert">
         <strong th:text="${error}">Error!</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
 
-    <div class="row g-4 d-flex align-items-start">
+    <div class="row g-4 d-flex align-items-start flex-column-reverse flex-lg-row">
         
-        <div class="col-lg-4 sticky-lg-top" style="top: 20px; z-index: 1;" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')">
-            <div class="card shadow-sm p-4" style="border-radius: 15px;">
-                <h4 class="fw-bold mb-4 text-primary">Post a New Event ✨</h4>
-                <form th:action="@{/events}" method="post">
-                    
-                    <div class="mb-3 border-bottom pb-3">
-                        <label class="form-label fw-bold text-primary">Host Organization (Club)</label>
-                        <select class="form-select shadow-sm fw-bold" name="clubId" required>
-                            <option value="" disabled selected>Select the hosting club...</option>
-                            <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary">Event Title</label>
-                        <input type="text" class="form-control shadow-sm" name="title" required placeholder="e.g. Spring Hackathon">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary">Date & Time</label>
-                        <input type="datetime-local" class="form-control shadow-sm" name="dateTime" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-secondary">Location</label>
-                        <input type="text" class="form-control shadow-sm" name="location" required placeholder="e.g. Main Auditorium">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-secondary">Description</label>
-                        <textarea class="form-control shadow-sm" name="description" rows="3" required placeholder="What is this event about?"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill py-2">Publish Event</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="col">
+        <div class="col-12 col-lg-8">
             <div th:if="${events.empty}" class="text-center py-5">
                 <h3 class="text-secondary fw-bold">No events found! 🏜️</h3>
                 <p class="text-muted">Try adjusting your search or check back later.</p>
             </div>
 
-            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            <div class="row row-cols-1 row-cols-md-2 g-4">
                 <div class="col" th:each="event : ${events}">
                     
-                    <div class="card event-card h-100 p-3 border-0 shadow-sm" 
+                    <div class="card event-card h-100 p-3 shadow-sm border-0" 
                          th:style="'border-top: 5px solid ' + (${event.club != null ? event.club.themeColor : '#6c757d'}) + ' !important;'">
                         
-                        <div class="card-body d-flex flex-column">
+                        <div class="card-body d-flex flex-column p-2 p-md-3">
                             
                             <div class="mb-2">
                                 <span class="badge rounded-pill shadow-sm py-1 px-3"
@@ -131,9 +99,9 @@
                                 th:style="'color: ' + (${event.club != null ? event.club.themeColor : '#0d6efd'}) + ';'" 
                                 th:text="${event.title}">Event Title</h5>
                             
-                            <p class="card-text mb-1 text-secondary">📍 <span th:text="${event.location}">Location</span></p>
-                            <p class="card-text mb-3 text-secondary">🕒 <span th:text="${event.dateTime}">Date</span></p>
-                            <p class="card-text flex-grow-1" th:text="${event.description}">Event description goes here.</p>
+                            <p class="card-text mb-1 text-secondary small">📍 <span th:text="${event.location}">Location</span></p>
+                            <p class="card-text mb-3 text-secondary small">🕒 <span th:text="${event.dateTime}">Date</span></p>
+                            <p class="card-text flex-grow-1 small" th:text="${event.description}">Event description goes here.</p>
                             
                             <div class="mt-3" th:with="isRegistered=${event.attendees.?[email == #authentication.name].size() > 0}">
                                 <form th:if="${!isRegistered}" th:action="@{/events/{id}/register(id=${event.id})}" method="post" class="m-0">
@@ -145,38 +113,38 @@
                             </div>
                             
                             <button sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" 
-                                    class="btn btn-light border border-secondary-subtle w-100 fw-bold rounded-pill shadow-sm mt-2"
+                                    class="btn btn-light border border-secondary-subtle w-100 fw-bold rounded-pill shadow-sm mt-2 small"
                                     data-bs-toggle="modal" 
                                     th:data-bs-target="'#guestListModal' + ${event.id}">
                                 📋 View Guest List (<span th:text="${event.attendees.size()}"></span>)
                             </button>
 
                             <div sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" class="mt-3 border-top border-secondary-subtle pt-3">
-                                <p class="small fw-bold text-muted mb-2 text-center">⚙️ Attendance Management</p>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-outline-dark btn-sm w-50 fw-bold rounded-pill shadow-sm"
+                                <p class="small fw-bold text-muted mb-2 text-center">⚙️ Attendance</p>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-outline-dark btn-sm flex-fill fw-bold rounded-pill shadow-sm"
                                             data-bs-toggle="modal" 
                                             th:data-bs-target="'#qrModal' + ${event.id}">
-                                        📱 QR Code
+                                        📱 QR
                                     </button>
                                     
                                     <a th:href="@{/events/{id}/attendance/export(id=${event.id})}" 
-                                       class="btn btn-outline-success btn-sm w-50 fw-bold rounded-pill shadow-sm">
-                                        📊 Export CSV
+                                       class="btn btn-outline-success btn-sm flex-fill fw-bold rounded-pill shadow-sm">
+                                        📊 CSV
                                     </a>
                                 </div>
                             </div>
 
                             <div sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="mt-3 border-top border-secondary-subtle pt-3">
                                 <p class="small fw-bold text-muted mb-2 text-center">🛠️ Manage Event</p>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-warning btn-sm w-50 fw-bold rounded-pill shadow-sm"
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button class="btn btn-warning btn-sm flex-fill fw-bold rounded-pill shadow-sm"
                                             data-bs-toggle="modal" 
                                             th:data-bs-target="'#editModal' + ${event.id}">
                                         ✏️ Edit
                                     </button>
                                     
-                                    <form th:action="@{/events/{id}/delete(id=${event.id})}" method="post" class="w-50 m-0" onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
+                                    <form th:action="@{/events/{id}/delete(id=${event.id})}" method="post" class="flex-fill m-0" onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
                                         <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold rounded-pill shadow-sm">
                                             🗑️ Delete
                                         </button>
@@ -191,7 +159,7 @@
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                             <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
                                 <div class="modal-header border-bottom-0 pb-0">
-                                    <h5 class="modal-title fw-bold text-primary">Guest List: <span class="text-dark dark-text-light" th:text="${event.title}"></span></h5>
+                                    <h5 class="modal-title fw-bold text-primary">Guest List</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -201,7 +169,7 @@
                                     </div>
                                     <ul class="list-group list-group-flush" th:unless="${event.attendees.empty}">
                                         <li class="list-group-item d-flex align-items-center py-3" th:each="guest : ${event.attendees}">
-                                            <img th:src="${guest.profilePhotoUrl != null ? guest.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + guest.fullName + '&background=random&size=50'}" 
+                                            <img th:src="${guest.profilePhotoUrl != null and !guest.profilePhotoUrl.isEmpty() ? guest.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + guest.fullName + '&background=random&size=50'}" 
                                                  alt="Avatar" class="rounded-circle me-3 shadow-sm object-fit-cover" style="width: 45px; height: 45px;">
                                             <div>
                                                 <h6 class="m-0 fw-bold" th:text="${guest.fullName}">User Name</h6>
@@ -216,6 +184,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="modal fade" th:id="'qrModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-sm modal-dialog-centered">
                             <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
@@ -223,7 +192,7 @@
                                     <h5 class="modal-title fw-bold text-dark dark-text-light">Scan to Check-in</h5>
                                 </div>
                                 <div class="modal-body text-center pb-4">
-                                    <img th:src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=http://localhost:8080/events/' + ${event.id} + '/checkin'" 
+                                    <img th:src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://campuscrew-app.onrender.com/events/' + ${event.id} + '/checkin'" 
                                          alt="QR Code" class="img-fluid mx-auto mb-3 shadow-sm rounded border p-2 bg-white">
                                     
                                     <p class="fw-bold text-primary mb-0" th:text="${event.title}">Event Title</p>
@@ -235,6 +204,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="modal fade" th:id="'editModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
@@ -246,19 +216,19 @@
                                     <form th:action="@{/events/{id}/edit(id=${event.id})}" method="post">
                                         
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold text-secondary">Event Title</label>
+                                            <label class="form-label small fw-bold text-secondary">Event Title</label>
                                             <input type="text" class="form-control shadow-sm" name="title" th:value="${event.title}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold text-secondary">Date & Time</label>
+                                            <label class="form-label small fw-bold text-secondary">Date & Time</label>
                                             <input type="datetime-local" class="form-control shadow-sm" name="dateTime" th:value="${event.dateTime}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label fw-bold text-secondary">Location</label>
+                                            <label class="form-label small fw-bold text-secondary">Location</label>
                                             <input type="text" class="form-control shadow-sm" name="location" th:value="${event.location}" required>
                                         </div>
                                         <div class="mb-4">
-                                            <label class="form-label fw-bold text-secondary">Description</label>
+                                            <label class="form-label small fw-bold text-secondary">Description</label>
                                             <textarea class="form-control shadow-sm" name="description" rows="3" required th:text="${event.description}"></textarea>
                                         </div>
                                         
@@ -268,9 +238,44 @@
                             </div>
                         </div>
                     </div>
-                    </div>
-            </div>
 
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-4 sticky-lg-top" style="top: 20px; z-index: 1;" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')">
+            <div class="card shadow-sm p-4 border-0" style="border-radius: 15px;">
+                <h5 class="fw-bold mb-4 text-primary">Post a New Event ✨</h5>
+                <form th:action="@{/events}" method="post">
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Host Organization</label>
+                        <select class="form-select shadow-sm fw-bold" name="clubId" required>
+                            <option value="" disabled selected>Select the club...</option>
+                            <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Event Title</label>
+                        <input type="text" class="form-control shadow-sm" name="title" required placeholder="e.g. Spring Hackathon">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Date & Time</label>
+                        <input type="datetime-local" class="form-control shadow-sm" name="dateTime" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-secondary">Location</label>
+                        <input type="text" class="form-control shadow-sm" name="location" required placeholder="e.g. Main Auditorium">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-secondary">Description</label>
+                        <textarea class="form-control shadow-sm" name="description" rows="3" required placeholder="What is this event about?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill py-2">Publish Event</button>
+                </form>
+            </div>
         </div>
 
     </div>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <title>CampusCrew</title>
+    <title>Dashboard - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
     <script>
@@ -13,18 +13,30 @@
     </script>
     <style>
         .hero-section {
-            padding: 80px 20px;
+            padding: 60px 20px;
             border-radius: 20px;
             background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
             color: white;
             margin-top: 20px;
+            box-shadow: 0 10px 30px rgba(13, 110, 253, 0.2);
         }
         [data-bs-theme="dark"] .hero-section {
             background: linear-gradient(135deg, #052c65 0%, #055160 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         [data-bs-theme="dark"] .card {
             background-color: #2b3035;
             border: 1px solid #495057 !important;
+        }
+        [data-bs-theme="dark"] .text-secondary {
+            color: #adb5bd !important;
+        }
+        .feature-card {
+            border-radius: 15px;
+            transition: transform 0.2s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
         }
     </style>
 </head>
@@ -32,74 +44,82 @@
 
 <div class="container mt-4 mb-5">
     
-    <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle">
-        <h2 class="m-0 fw-bold text-primary">🎓 CampusCrew</h2>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gap-3">
+        <div class="text-center text-md-start">
+            <h2 class="m-0 fw-bold text-primary">🎓 CampusCrew</h2>
+        </div>
         
-        <div class="d-flex align-items-center">
-            <button class="btn btn-dark ms-3 shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 40px; height: 40px;">🌙</button>
+        <div class="d-flex flex-wrap justify-content-center align-items-center gap-3">
+            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 40px; height: 40px;">🌙</button>
             
-            <div sec:authorize="isAuthenticated()" class="ms-3 d-flex align-items-center">
-                <span class="fw-bold me-3 text-secondary">Hello, <span sec:authentication="name" class="text-primary">User</span>!</span>
+            <div sec:authorize="isAuthenticated()" class="d-flex align-items-center flex-wrap justify-content-center gap-2">
+                
+                <a href="/profile/edit" class="text-decoration-none">
+                    <span class="fw-bold text-secondary text-center d-inline-block text-truncate" style="max-width: 160px; vertical-align: bottom;" title="Edit Profile">
+                        Hello, <span sec:authentication="name" class="text-primary">User</span>!
+                    </span>
+                </a>
+                
                 <form th:action="@{/logout}" method="post" class="m-0">
                     <button type="submit" class="btn btn-outline-danger btn-sm fw-bold rounded-pill shadow-sm px-3">Logout</button>
                 </form>
             </div>
             
-            <div sec:authorize="!isAuthenticated()" class="ms-3">
+            <div sec:authorize="!isAuthenticated()" class="d-flex gap-2">
                 <a href="/login" class="btn btn-outline-primary fw-bold rounded-pill shadow-sm px-4">Login</a>
-                <a href="/register" class="btn btn-primary fw-bold rounded-pill shadow-sm px-4 ms-2">Sign Up</a>
+                <a href="/register" class="btn btn-primary fw-bold rounded-pill shadow-sm px-4">Sign Up</a>
             </div>
         </div>
     </div>
 
-    <div class="hero-section text-center shadow-lg mb-5">
-        <h1 class="display-4 fw-bold mb-3">Welcome to CampusCrew</h1>
-        <p class="lead mb-4">Your all-in-one hub for campus events, club management, and student life.</p>
+    <div class="hero-section text-center mb-5">
+        <h1 class="display-5 fw-bold mb-3">Welcome to CampusCrew</h1>
+        <p class="lead mb-4 fs-6 fs-md-5 px-3">Your all-in-one hub for campus events, club management, and student life.</p>
         
-        <div class="d-flex justify-content-center flex-wrap gap-3 mt-4" sec:authorize="isAuthenticated()">
+        <div class="d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mt-4 px-3" sec:authorize="isAuthenticated()">
             
-            <a href="/events" class="btn btn-light btn-lg fw-bold rounded-pill shadow text-primary px-4">
+            <a href="/events" class="btn btn-light fw-bold rounded-pill shadow text-primary px-4 py-2 w-100" style="max-width: 250px;">
                 📅 Browse Events
             </a>
             
-            <a href="/my-events" class="btn btn-outline-light btn-lg fw-bold rounded-pill shadow px-4 border-2">
+            <a href="/my-events" class="btn btn-outline-light fw-bold rounded-pill shadow px-4 py-2 border-2 w-100" style="max-width: 250px;">
                 🎫 My Tickets
             </a>
 
-            <a sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" href="/clubs" class="btn btn-warning btn-lg fw-bold rounded-pill shadow px-4 text-dark">
+            <a sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" href="/clubs" class="btn btn-warning fw-bold rounded-pill shadow px-4 py-2 text-dark w-100" style="max-width: 250px;">
                 🛡️ Manage Clubs
             </a>
 
-            <a sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" href="/admin" class="btn btn-danger btn-lg fw-bold rounded-pill shadow px-4">
+            <a sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" href="/admin" class="btn btn-danger fw-bold rounded-pill shadow px-4 py-2 w-100" style="max-width: 250px;">
                 ⚙️ Admin Panel
             </a>
         </div>
         
         <div class="mt-4" sec:authorize="!isAuthenticated()">
-            <p class="fw-bold fs-5 bg-dark bg-opacity-25 d-inline-block px-4 py-2 rounded-pill">Please log in or register to access the platform.</p>
+            <p class="fw-bold fs-6 bg-dark bg-opacity-25 d-inline-block px-4 py-2 rounded-pill shadow-sm">Please log in or register to access the platform.</p>
         </div>
     </div>
 
-    <div class="row g-4 text-center" sec:authorize="isAuthenticated()">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 p-4" style="border-radius: 15px;">
-                <h1 class="display-5 fw-bold text-primary mb-2">🎟️</h1>
+    <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+        <div class="col">
+            <div class="card feature-card border-0 shadow-sm h-100 p-4">
+                <h1 class="display-5 fw-bold text-primary mb-3">🎟️</h1>
                 <h5 class="fw-bold text-secondary">Discover Events</h5>
-                <p class="text-muted small mb-0">Find workshops, hackathons, and social gatherings happening right now.</p>
+                <p class="text-secondary small mb-0">Find workshops, hackathons, and social gatherings happening right now.</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 p-4" style="border-radius: 15px;">
-                <h1 class="display-5 fw-bold text-success mb-2">🤝</h1>
+        <div class="col">
+            <div class="card feature-card border-0 shadow-sm h-100 p-4">
+                <h1 class="display-5 fw-bold text-success mb-3">🤝</h1>
                 <h5 class="fw-bold text-secondary">Join Clubs</h5>
-                <p class="text-muted small mb-0">Connect with like-minded peers and grow your network on campus.</p>
+                <p class="text-secondary small mb-0">Connect with like-minded peers and grow your network on campus.</p>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 p-4" style="border-radius: 15px;">
-                <h1 class="display-5 fw-bold text-danger mb-2">📱</h1>
+        <div class="col">
+            <div class="card feature-card border-0 shadow-sm h-100 p-4">
+                <h1 class="display-5 fw-bold text-danger mb-3">📱</h1>
                 <h5 class="fw-bold text-secondary">Easy Check-in</h5>
-                <p class="text-muted small mb-0">Get your personalized QR codes for instant event attendance and tracking.</p>
+                <p class="text-secondary small mb-0">Get your personalized QR codes for instant event attendance and tracking.</p>
             </div>
         </div>
     </div>

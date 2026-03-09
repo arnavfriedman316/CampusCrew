@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
     <title>Register - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
@@ -9,108 +11,51 @@
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
-
-    <style>
-        body {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .auth-card {
-            width: 100%;
-            max-width: 450px;
-            border-radius: 24px;
-            border: 1px solid rgba(0,0,0,0.1);
-            padding: 2.5rem;
-        }
-        [data-bs-theme="dark"] .auth-card {
-            background-color: #2b3035;
-            border: 1px solid #495057;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.5) !important;
-        }
-        [data-bs-theme="dark"] .form-control {
-            background-color: #212529;
-            border-color: #495057;
-            color: #fff;
-        }
-        .gradient-text {
-            background: linear-gradient(45deg, #0d6efd, #0dcaf0);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .theme-toggle-floating {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-    </style>
 </head>
-<body class="bg-body-tertiary">
 
-    <button class="btn btn-dark shadow-sm theme-toggle-floating" id="darkModeToggle" title="Toggle Dark Mode">🌙</button>
+<body class="bg-body-tertiary d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 2rem 0;">
 
-    <div class="card auth-card shadow-lg">
+<div class="container px-3">
+    <div class="card shadow-lg border-0 mx-auto p-4 p-md-5" style="max-width: 400px; width: 100%; border-radius: 20px;">
         
         <div class="text-center mb-4">
-            <h1 class="display-6 fw-bolder mb-2">🎓 <span class="gradient-text">Join Us</span></h1>
-            <p class="text-secondary fw-medium">Create your CampusCrew account.</p>
+            <h2 class="fw-bold text-primary">🎓 CampusCrew</h2>
+            <p class="text-muted small">Join the community. Create an account.</p>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger text-center py-2 shadow-sm rounded-3">
+            <small class="fw-bold" th:text="${error}">Error message</small>
+        </div>
+        <div th:if="${success}" class="alert alert-success text-center py-2 shadow-sm rounded-3">
+            <small class="fw-bold" th:text="${success}">Success message</small>
         </div>
 
         <form th:action="@{/register}" method="post">
-            
-            <div class="form-floating mb-3">
-                <input type="text" class="form-control rounded-4 shadow-sm" id="floatingName" name="fullName" placeholder="John Doe" required>
-                <label for="floatingName" class="text-secondary">Full Name</label>
-            </div>
-
-            <div class="form-floating mb-3">
-                <input type="email" class="form-control rounded-4 shadow-sm" id="floatingEmail" name="email" placeholder="name@example.com" required>
-                <label for="floatingEmail" class="text-secondary">Email address</label>
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary">Full Name</label>
+                <input type="text" class="form-control form-control-lg shadow-sm" name="fullName" required placeholder="e.g. Jane Doe">
             </div>
             
-            <div class="form-floating mb-4">
-                <input type="password" class="form-control rounded-4 shadow-sm" id="floatingPassword" name="password" placeholder="Password" required>
-                <label for="floatingPassword" class="text-secondary">Password</label>
+            <div class="mb-3">
+                <label class="form-label small fw-bold text-secondary">Email Address</label>
+                <input type="email" class="form-control form-control-lg shadow-sm" name="email" required placeholder="student@campus.edu">
             </div>
-
-            <button class="btn btn-primary w-100 py-3 rounded-4 shadow-sm fw-bold fs-5 mb-3" type="submit">Create Account</button>
             
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-secondary">Password</label>
+                <input type="password" class="form-control form-control-lg shadow-sm" name="password" required placeholder="Create a strong password">
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm">Sign Up</button>
         </form>
         
-        <div class="text-center mt-3">
-            <p class="text-secondary mb-0">Already have an account? <a href="/login" class="text-primary text-decoration-none fw-bold">Sign in</a></p>
+        <div class="text-center mt-4 border-top pt-3">
+            <p class="small text-muted mb-0">Already have an account? <a href="/login" class="fw-bold text-primary text-decoration-none">Sign in here</a></p>
         </div>
         
     </div>
+</div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const htmlElement = document.documentElement; 
-            const themeToggleBtn = document.getElementById('darkModeToggle');
-
-            const currentTheme = htmlElement.getAttribute('data-bs-theme') || 'light';
-            themeToggleBtn.textContent = currentTheme === 'dark' ? '☀️' : '🌙';
-            updateButtonStyle(currentTheme);
-
-            themeToggleBtn.addEventListener('click', () => {
-                let theme = htmlElement.getAttribute('data-bs-theme');
-                let newTheme = theme === 'dark' ? 'light' : 'dark';
-                htmlElement.setAttribute('data-bs-theme', newTheme);
-                localStorage.setItem('theme', newTheme);
-                themeToggleBtn.textContent = newTheme === 'dark' ? '☀️' : '🌙';
-                updateButtonStyle(newTheme);
-            });
-
-            function updateButtonStyle(theme) {
-                if (theme === 'dark') {
-                    themeToggleBtn.classList.replace('btn-dark', 'btn-light');
-                } else {
-                    themeToggleBtn.classList.replace('btn-light', 'btn-dark');
-                }
-            }
-        });
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
