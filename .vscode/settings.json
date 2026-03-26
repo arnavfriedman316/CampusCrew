@@ -11,9 +11,10 @@
             "port": 3306,
             "driver": "MySQL",
             "name": "campuscrew",
-            "database": "sys",
-            "username": "root"
+            "username": "root",
+            "database": "mysql"
         }
     ],
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.jdt.ls.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.10.7-hotspot"
 }
