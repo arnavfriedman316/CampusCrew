@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
@@ -20,18 +21,24 @@ public class Club {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String name; // e.g., "Swaragini", "NSS"
+    private String name; 
 
     private String description;
 
     @Column(nullable = false)
-    private String themeColor; // Stores hex codes, e.g., "#FF5733"
+    private String themeColor; // this stores the hex code of the color theme of the club
 
-    // One Club can host Many Events
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] logoData;
+
+    private String logoType;
+
+    // one club can host many events
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
     private List<Events> events;
 
-    // --- GETTERS & SETTERS ---
+    // these are the getters and setters
     public Long getId() {
         return id;
     }
@@ -70,5 +77,21 @@ public class Club {
 
     public void setEvents(List<Events> events) {
         this.events = events;
+    }
+
+    public byte[] getLogoData() {
+        return logoData;
+    }
+
+    public void setLogoData(byte[] logoData) {
+        this.logoData = logoData;
+    }
+
+    public String getLogoType() {
+        return logoType;
+    }
+
+    public void setLogoType(String logoType) {
+        this.logoType = logoType;
     }
 }

@@ -22,4 +22,6 @@ public interface EventRepository extends JpaRepository<Events, Long> {
     // Find all events where this specific user is in the attendees list
     List<Events> findByAttendeesContaining(AppUser user);
 
+    // Get strictly upcoming top 4 events for the dashboard bento grid
+    List<Events> findTop4ByOrderByDateTimeAsc();
 }

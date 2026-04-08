@@ -6,28 +6,15 @@
     
     <title>My Tickets - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
     
-    <style>
-        .ticket-card {
-            border-radius: 15px;
-            border: 1px dashed rgba(0,0,0,0.2) !important;
-            transition: transform 0.2s ease;
-        }
-        .ticket-card:hover {
-            transform: translateY(-5px);
-        }
-        [data-bs-theme="dark"] .ticket-card, [data-bs-theme="dark"] .modal-content {
-            background-color: #2b3035;
-            border-color: #495057 !important;
-        }
-    </style>
 </head>
-<body class="bg-body-tertiary">
+<body class="bg-body">
 
 <div class="container mt-4 mb-5">
 
@@ -79,7 +66,7 @@
                         th:text="${event.title}">Event Title</h5>
                     
                     <p class="card-text mb-1 text-secondary small text-center text-md-start">📍 <span th:text="${event.location}">Location</span></p>
-                    <p class="card-text mb-3 text-secondary small text-center text-md-start">🕒 <span th:text="${event.dateTime}">Date</span></p>
+                    <p class="card-text mb-3 text-secondary small text-center text-md-start">🕒 <span th:text="${#temporals.format(event.dateTime, 'dd-MM-yy HH:mm')}">Date</span></p>
                     
                     <div class="mt-auto pt-3 border-top border-secondary-subtle">
                          
@@ -109,7 +96,7 @@
                                  alt="My Ticket QR" class="img-fluid mx-auto mb-3 shadow-sm rounded border p-2 bg-white">
                             
                             <p class="fw-bold text-primary mb-1" th:text="${event.title}">Event Title</p>
-                            <p class="small text-muted mb-0" th:text="${event.dateTime}">Date</p>
+                            <p class="small text-muted mb-0" th:text="${#temporals.format(event.dateTime, 'dd-MM-yy HH:mm')}">Date</p>
                             <hr class="my-3">
                             <p class="small fw-bold text-secondary mb-0">Show this code at the door!</p>
                         </div>

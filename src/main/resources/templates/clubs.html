@@ -6,124 +6,135 @@
     
     <title>Manage Clubs - CampusCrew</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/style.css" rel="stylesheet">
     
     <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-bs-theme', savedTheme);
     </script>
     
-    <style>
-        [data-bs-theme="dark"] .card { background-color: #2b3035; border-color: #495057 !important; }
-        [data-bs-theme="dark"] .form-control { background-color: #212529; border-color: #495057; color: #fff; }
-        [data-bs-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: #f8f9fa; border-color: #495057; }
-        [data-bs-theme="dark"] .table-hover>tbody>tr:hover>* { --bs-table-bg-state: rgba(255,255,255,0.05); color: #fff; }
-    </style>
 </head>
-<body class="bg-body-tertiary">
+<body class="bg-body">
 
 <div class="container mt-4 mb-5">
-
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gap-3">
-        <div class="text-center text-md-start">
-            <h2 class="m-0 fw-bold text-warning text-dark">🛡️ Manage Clubs</h2>
-            <p class="text-muted mb-0 small">Create and organize student organizations.</p>
-        </div>
+    
+    <div class="bento-grid">
         
-        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
-            <a href="/events" class="btn btn-primary btn-sm shadow-sm px-3 rounded-pill fw-bold">📅 Events</a>
-            <a sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" href="/admin" class="btn btn-danger btn-sm shadow-sm px-3 rounded-pill fw-bold">⚙️ Admin</a>
-            <a href="/" class="btn btn-outline-secondary btn-sm shadow-sm px-3 rounded-pill">Dashboard</a>
-            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 36px; height: 36px;">🌙</button>
-        </div>
-    </div>
-
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3" role="alert">
-        <strong th:text="${success}">Success!</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3" role="alert">
-        <strong th:text="${error}">Error!</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-
-    <div class="row g-4 d-flex align-items-start">
-        
-        <div class="col-12 col-lg-4 sticky-lg-top" style="top: 20px; z-index: 1;">
-            <div class="card shadow-sm border-0 p-3 p-md-4" style="border-radius: 15px;">
-                <h5 class="fw-bold mb-4 text-primary">➕ Create New Club</h5>
-                <form th:action="@{/clubs}" method="post">
-                    
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Club Name</label>
-                        <input type="text" class="form-control shadow-sm" name="name" required placeholder="e.g. Coding Club">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Theme Color</label>
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="color" class="form-control form-control-color shadow-sm" name="themeColor" value="#0d6efd" title="Choose your color" required>
-                            <span class="small text-muted">Pick a brand color</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-secondary">Description</label>
-                        <textarea class="form-control shadow-sm" name="description" rows="3" required placeholder="What does this club do?"></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill">Create Club</button>
-                </form>
+        <!-- Header Block -->
+        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background-color: var(--accent-red) !important; color: white !important;">
+            <div class="text-start">
+                <h2 class="m-0 fw-bold" style="color: white !important;">🛡️ MANAGE CLUBS</h2>
+                <p class="mb-0 fw-bold" style="opacity: 0.9;">Create and organize student organizations.</p>
+            </div>
+            
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mt-3 mt-md-0">
+                <a href="/events" class="btn btn-warning fw-bold py-2 px-4 shadow-none text-dark">DASHBOARD &rarr;</a>
+                <a sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" href="/admin" class="btn btn-dark fw-bold py-2 px-4 shadow-none">⚙️ ADMIN</a>
+                <button class="btn btn-dark shadow-none d-flex align-items-center justify-content-center p-0" id="darkModeToggle" title="Toggle Dark Mode" style="width: 50px; height: 50px; font-size: 1.2rem;">🌙</button>
             </div>
         </div>
 
-        <div class="col-12 col-lg-8">
-            <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+        <!-- Alerts -->
+        <div class="bento-item span-4 py-3 bg-success text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong th:text="${success}">Success!</strong>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+        <div class="bento-item span-4 py-3 bg-danger text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong th:text="${error}">Error!</strong>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Create Club Form -->
+        <div class="bento-item span-1 h-100 d-flex flex-column justify-content-start" style="background-color: var(--bg-cream);">
+            <h4 class="fw-bold fs-4 mb-4" style="font-family: 'Syne', sans-serif;">➕ NEW CLUB</h4>
+            <form th:action="@{/clubs/create}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
                 
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 text-nowrap">
-                        <thead class="table-dark">
-                            <tr>
-                                <th class="px-4 py-3">Club Name</th>
-                                <th class="py-3">Description</th>
-                                <th class="py-3 text-center">Events</th>
-                                <th class="px-4 py-3 text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:if="${clubs == null or clubs.empty}">
-                                <td colspan="4" class="text-center py-5 text-muted fw-bold">No clubs created yet. Be the first!</td>
-                            </tr>
-                            
-                            <tr th:each="club : ${clubs}">
-                                <td class="px-4 fw-bold">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <div class="rounded-circle shadow-sm border border-light" 
-                                             th:style="'width: 15px; height: 15px; background-color: ' + ${club.themeColor} + ';'"></div>
-                                        <span th:text="${club.name}">Club Name</span>
-                                    </div>
-                                </td>
-                                
-                                <td class="text-secondary small d-inline-block text-truncate mt-2" style="max-width: 200px;" th:text="${club.description}">
-                                    Club description goes here...
-                                </td>
-                                
-                                <td class="text-center">
-                                    <span class="badge bg-secondary rounded-pill" th:text="${club.events != null ? club.events.size() : 0}">0</span>
-                                </td>
-                                
-                                <td class="px-4 text-end">
-                                    <form th:action="@{/clubs/{id}/delete(id=${club.id})}" method="post" class="m-0" onsubmit="return confirm('Are you sure? Deleting this club will also delete all of its events!');">
-                                        <button type="submit" class="btn btn-danger btn-sm fw-bold rounded shadow-sm px-3">
-                                            🗑️ Delete
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div>
+                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Club Name</label>
+                    <input type="text" class="form-control rounded-0 shadow-none border-2" name="name" required placeholder="e.g. Coding Club" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
                 </div>
                 
+                <div>
+                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Club Logo</label>
+                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="logoImage" accept="image/*" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                </div>
+                
+                <div>
+                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Brand Color</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="themeColor" value="#3366FF" title="Choose color" required style="border-color: var(--border-dark);">
+                        <span class="small fw-bold" style="opacity: 0.7;">Select a HEX</span>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Description</label>
+                    <textarea class="form-control rounded-0 shadow-none border-2" name="description" rows="4" required placeholder="What does this club do?" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);"></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary fw-bold rounded-0 shadow-none mt-3" style="border: 2px solid var(--border-dark); border-bottom-width: 4px; border-right-width: 4px;">CREATE CLUB</button>
+            </form>
+        </div>
+
+        <!-- Clubs Table -->
+        <div class="bento-item span-3 p-0 overflow-hidden" style="display: flex; flex-direction: column; background-color: var(--bg-cream);">
+            
+            <div class="p-3 border-bottom" style="border-color: var(--border-dark) !important;">
+                <span class="fw-bold fs-4" style="font-family: 'Syne', sans-serif;">DIRECTORY</span>
             </div>
+            
+            <div class="table-responsive bg-transparent" style="flex-grow: 1;">
+                <table class="table align-middle mb-0" style="--bs-table-bg: transparent; --bs-table-color: inherit; border-color: var(--border-dark);">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-dark);">
+                            <th class="px-4 py-3 fw-bold text-uppercase">Club</th>
+                            <th class="py-3 fw-bold text-uppercase">Mission</th>
+                            <th class="py-3 text-center fw-bold text-uppercase">Events</th>
+                            <th class="px-4 py-3 text-end fw-bold text-uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:if="${clubs == null or clubs.empty}">
+                            <td colspan="4" class="text-center py-5 fw-bold" style="opacity: 0.5;">No clubs exist yet. The campus is quiet.</td>
+                        </tr>
+                        
+                        <tr th:each="club : ${clubs}" style="border-bottom: 1px solid var(--border-dark);">
+                            <td class="px-4 fw-bold">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center" 
+                                         th:style="'width: 40px; height: 40px; border: 2px solid var(--border-dark); background-color: ' + ${club.themeColor} + ';'">
+                                         <img th:if="${club.logoData != null}" th:src="@{/clubs/{id}/logo(id=${club.id})}" class="w-100 h-100 object-fit-cover" alt="Logo">
+                                         <!-- Fallback pattern if no logo -->
+                                         <div th:unless="${club.logoData != null}" class="w-100 h-100" style="background: repeating-linear-gradient(45deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 5px, transparent 5px, transparent 10px);"></div>
+                                    </div>
+                                    <span th:text="${club.name}" style="font-size: 1.1rem;">Club Name</span>
+                                </div>
+                            </td>
+                            
+                            <td class="text-secondary small d-inline-block text-truncate mt-3" style="max-width: 250px; font-weight: 500; color: inherit;" th:text="${club.description}">
+                                Club description goes here...
+                            </td>
+                            
+                            <td class="text-center">
+                                <span class="badge rounded-0 fs-6 fw-bold border" style="border-color: var(--border-dark) !important; background-color: var(--border-dark); color: var(--bg-cream);" th:text="${club.events != null ? club.events.size() : 0}">0</span>
+                            </td>
+                            
+                            <td class="px-4 text-end">
+                                <form th:action="@{/clubs/{id}/delete(id=${club.id})}" method="post" class="m-0" onsubmit="return confirm('⚠️ Are you sure? Deleting this club will irrevocably delete ALL associated events/tickets!');">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm fw-bold rounded-0 shadow-none px-3" style="border-width: 2px;">
+                                        DELETE
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
         </div>
 
     </div>

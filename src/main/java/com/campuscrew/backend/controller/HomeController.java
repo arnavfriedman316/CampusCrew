@@ -6,6 +6,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.ui.Model;
+
+import com.campuscrew.backend.repository.EventRepository;
 
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.repository.UserRepository;
@@ -19,8 +22,12 @@ public class HomeController {
     @Autowired
     private PasswordEncoder passwordEncoder; //password endcoding part
 
+    @Autowired
+    private EventRepository eventRepository;
+
     @GetMapping("/")
-    public String home() { //this is the first thing that was made while making this project
+    public String home(Model model) { //this is the first thing that was made while making this project
+        model.addAttribute("recentEvents", eventRepository.findTop4ByOrderByDateTimeAsc());
         return "index";
     }
 

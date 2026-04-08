@@ -27,6 +27,16 @@ public class Events {
     @JoinColumn(name = "club_id")
     private Club club;
 
+    private String posterUrl;
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
+    }
+
     //getters and setters
     public Long getId() {
         return id;

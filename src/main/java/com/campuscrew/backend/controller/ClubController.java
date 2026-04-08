@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.campuscrew.backend.entity.Club;
 import com.campuscrew.backend.repository.ClubRepository;
@@ -26,15 +31,19 @@ public class ClubController {
         model.addAttribute("clubs", clubRepository.findAll());
         return "clubs";
     }
-
-    // SUPER ADMIN ONLY: Create a new Club
     @PostMapping("/create")
-    public String createClub(@RequestParam String name, @RequestParam String description, @RequestParam String themeColor, RedirectAttributes redirectAttributes) {
+    public String createClub(@RequestParam String name, @RequestParam String description, @RequestParam String themeColor, @RequestParam(value = "logoImage", required = false) MultipartFile logoImage, RedirectAttributes redirectAttributes) {
         try {
             Club club = new Club();
             club.setName(name);
             club.setDescription(description);
             club.setThemeColor(themeColor);
+            
+            if (logoImage != null && !logoImage.isEmpty()) {
+                club.setLogoData(logoImage.getBytes());
+                club.setLogoType(logoImage.getContentType());
+            }
+
             clubRepository.save(club);
             redirectAttributes.addFlashAttribute("success", "Club '" + name + "' forged successfully! 🏛️");
         } catch (Exception e) {
@@ -43,7 +52,16 @@ public class ClubController {
         return "redirect:/clubs";
     }
 
-    // PRESIDENTS & SUPER ADMINS: Edit an existing Club
+    @GetMapping("/{id}/logo")
+    public ResponseEntity<byte[]> getClubLogo(@PathVariable Long id) {
+        Club club = clubRepository.findById(id).orElse(null);
+        if (club != null && club.getLogoData() != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(club.getLogoType()));
+            return new ResponseEntity<>(club.getLogoData(), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
     @PostMapping("/edit/{id}")
     public String editClub(@PathVariable Long id, @RequestParam String description, @RequestParam String themeColor, RedirectAttributes redirectAttributes) {
         Club club = clubRepository.findById(id).orElse(null);

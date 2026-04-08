@@ -29,20 +29,16 @@ public class ProfileController {
         model.addAttribute("user", user);
         return "profile";
     }
-
     //this allows user to edit their profiles
     @GetMapping("/profile/edit")
     public String editProfilePage(Principal principal, Model model) {
         AppUser user = userRepository.findByEmail(principal.getName());
-
         if (user == null) {
             return "redirect:/login";
         }
-
         model.addAttribute("user", user);
         return "edit-profile"; 
     }
-
     @PostMapping("/profile/edit")
     public String saveProfileChanges(
             Principal principal,
@@ -50,20 +46,17 @@ public class ProfileController {
             @RequestParam(required = false) String bio,
             @RequestParam(required = false) String profilePhotoUrl,
             RedirectAttributes redirectAttributes) {
-
         AppUser user = userRepository.findByEmail(principal.getName());
 
         if (user != null) {
             // Update their details
             user.setFullName(fullName);
-
             if (bio != null) {
                 user.setBio(bio);
             }
             if (profilePhotoUrl != null && !profilePhotoUrl.isEmpty()) {
                 user.setProfilePhotoUrl(profilePhotoUrl);
             }
-
             userRepository.save(user);
             redirectAttributes.addFlashAttribute("success", "Profile updated successfully! ✨");
         }

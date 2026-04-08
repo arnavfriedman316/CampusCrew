@@ -91,7 +91,6 @@ public class AppUser {
     public Club getManagedClub() {
         return managedClub;
     }
-
     public void setManagedClub(Club managedClub) {
         this.managedClub = managedClub;
     }

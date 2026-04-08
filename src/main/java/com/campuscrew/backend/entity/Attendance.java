@@ -19,21 +19,21 @@ public class Attendance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // The event they attended
+    // the event they attended
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Events event;
 
-    // The user who scanned the QR code
+    // the user who scanned the QR code
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private AppUser user;
 
-    // The exact moment they scanned the code
+    // the exact moment they scanned the code
     @Column(nullable = false)
     private LocalDateTime checkInTime;
 
-    // --- GETTERS & SETTERS ---
+    // the getters and setters.
     public Long getId() {
         return id;
     }

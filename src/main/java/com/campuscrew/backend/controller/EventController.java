@@ -54,6 +54,7 @@ public class EventController {
             @RequestParam String dateTime,
             @RequestParam String location,
             @RequestParam String description,
+            @RequestParam(required = false) String posterUrl,
             RedirectAttributes redirectAttributes) {
 
         Club club = clubRepository.findById(clubId).orElse(null);
@@ -65,6 +66,7 @@ public class EventController {
             event.setDateTime(LocalDateTime.parse(dateTime));
             event.setLocation(location);
             event.setDescription(description);
+            event.setPosterUrl(posterUrl);
 
             eventRepository.save(event);
             redirectAttributes.addFlashAttribute("success", "Event created successfully! 🎉");
@@ -72,7 +74,6 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // 🎟️ REGISTER FOR AN EVENT
     @PostMapping("/events/{id}/register")
     public String registerForEvent(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) {
@@ -91,8 +92,6 @@ public class EventController {
         }
         return "redirect:/events";
     }
-
-    // ❌ CANCEL REGISTRATION
     @PostMapping("/events/{id}/cancel")
     public String cancelRegistration(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) {
@@ -111,14 +110,13 @@ public class EventController {
         }
         return "redirect:/events";
     }
-
-    // ✏️ EDIT AN EVENT
     @PostMapping("/events/{id}/edit")
     public String editEvent(@PathVariable Long id,
             @RequestParam String title,
             @RequestParam String dateTime,
             @RequestParam String location,
             @RequestParam String description,
+            @RequestParam(required = false) String posterUrl,
             RedirectAttributes redirectAttributes) {
 
         Events event = eventRepository.findById(id).orElse(null);
@@ -127,14 +125,13 @@ public class EventController {
             event.setDateTime(LocalDateTime.parse(dateTime));
             event.setLocation(location);
             event.setDescription(description);
+            event.setPosterUrl(posterUrl);
             eventRepository.save(event);
 
             redirectAttributes.addFlashAttribute("success", "Event updated successfully! ✏️");
         }
         return "redirect:/events";
     }
-
-    // 🗑️ DELETE AN EVENT
     @PostMapping("/events/{id}/delete")
     public String deleteEvent(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         Events event = eventRepository.findById(id).orElse(null);
@@ -145,17 +142,16 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // 🎫 MY TICKETS DASHBOARD
     @GetMapping("/my-events")
     public String myEvents(Principal principal, Model model) {
         if (principal == null) {
-            return "redirect:/login"; // Gotta be logged in to see your tickets!
+            return "redirect:/login"; 
         }
 
         AppUser user = userRepository.findByEmail(principal.getName());
 
         if (user != null) {
-            // Fetch only the events this specific user registered for
+            // fetching only the events this specific user registered for
             model.addAttribute("events", eventRepository.findByAttendeesContaining(user));
         }
 

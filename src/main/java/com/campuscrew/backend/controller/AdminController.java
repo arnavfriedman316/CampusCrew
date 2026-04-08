@@ -24,11 +24,7 @@ public class AdminController {
 
     @Autowired
     private ClubRepository clubRepository;
-
-    // The hardcoded ultimate authority email
     private final String SUPREME_ADMIN_EMAIL = "admin316@campuscrew.com";
-
-    // 📋 Load the Admin Dashboard (With Search!)
     @GetMapping("/admin")
     public String adminDashboard(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
         if (keyword != null && !keyword.isEmpty()) {
@@ -40,8 +36,6 @@ public class AdminController {
         model.addAttribute("clubs", clubRepository.findAll());
         return "admin";
     }
-
-    // 👑 Handle the Role & Club Update Form
     @PostMapping("/admin/update-role")
     public String updateUserRole(@RequestParam Long userId, @RequestParam String newRole, @RequestParam(required = false) Long managedClubId, Principal principal, RedirectAttributes redirectAttributes) {
         AppUser targetUser = userRepository.findById(userId).orElse(null);
@@ -49,32 +43,26 @@ public class AdminController {
 
         if (targetUser != null && loggedInUser != null) {
 
-            // 🛑 SECURITY 1: Absolutely nobody can modify the Supreme Admin (Not even the Supreme Admin, to prevent accidental demotion)
             if (targetUser.getEmail().equals(SUPREME_ADMIN_EMAIL)) {
                 redirectAttributes.addFlashAttribute("error", "Access Denied: The Supreme Admin account cannot be modified. 🛑");
                 return "redirect:/admin";
             }
-
-            // 🛑 SECURITY 2: Only the Supreme Admin can edit other Super Admins
             if ("ROLE_SUPER_ADMIN".equals(targetUser.getRole()) && !loggedInUser.getEmail().equals(SUPREME_ADMIN_EMAIL)) {
                 redirectAttributes.addFlashAttribute("error", "Access Denied: Only the Supreme Admin can modify other Super Admins. 🛑");
                 return "redirect:/admin";
             }
 
-            // 🛑 SECURITY 3: Presidents cannot create new Super Admins
             if (loggedInUser.getRole().equals("ROLE_PRESIDENT") && "ROLE_SUPER_ADMIN".equals(newRole)) {
                 redirectAttributes.addFlashAttribute("error", "Access Denied: Only an Admin can forge another Super Admin. 🛑");
                 return "redirect:/admin";
             }
 
-            // --- Assign the Club ---
             if (managedClubId != null) {
                 targetUser.setManagedClub(clubRepository.findById(managedClubId).orElse(null));
             } else {
                 targetUser.setManagedClub(null);
             }
 
-            // Update the role
             targetUser.setRole(newRole);
             userRepository.save(targetUser);
 
@@ -84,7 +72,6 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    // 🗑️ Delete User
     @PostMapping("/admin/users/{id}/delete")
     public String deleteUser(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
 
@@ -93,19 +80,16 @@ public class AdminController {
 
         if (targetUser != null) {
 
-            // 🛑 SECURITY 1: The Supreme Admin can never be deleted
             if (targetUser.getEmail().equals(SUPREME_ADMIN_EMAIL)) {
                 redirectAttributes.addFlashAttribute("error", "Access Denied: The Supreme Admin cannot be deleted. 🛑");
                 return "redirect:/admin";
             }
 
-            // 🛑 SECURITY 2: Only the Supreme Admin can delete other Super Admins
             if ("ROLE_SUPER_ADMIN".equals(targetUser.getRole()) && !loggedInEmail.equals(SUPREME_ADMIN_EMAIL)) {
                 redirectAttributes.addFlashAttribute("error", "Access Denied: Only the Supreme Admin can delete other Super Admins. 🛑");
                 return "redirect:/admin";
             }
 
-            // Remove this user from any events they registered for
             if (targetUser.getEvents() != null) {
                 for (Events event : targetUser.getEvents()) {
                     event.getAttendees().remove(targetUser);

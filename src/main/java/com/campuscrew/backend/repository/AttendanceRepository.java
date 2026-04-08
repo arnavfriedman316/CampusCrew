@@ -11,9 +11,9 @@ import com.campuscrew.backend.entity.Events;
 @Repository
 public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
 
-    // Finds everyone who attended a specific event
+    // this finds everyone who attended a specific event
     List<Attendance> findByEvent(Events event);
 
-    // Checks if a user already scanned the QR code so they can't check in twice
+    // this checks if a user already scanned the QR code so they can't check in twice
     boolean existsByEventIdAndUserId(Long eventId, Long userId);
 }
