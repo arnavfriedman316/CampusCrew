@@ -92,6 +92,8 @@
                                     
                                     <select name="newRole" class="form-select shadow-none rounded-0 border-2 fw-bold" style="max-width: 150px; border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
                                         <option value="ROLE_USER" th:selected="${user.role == 'ROLE_USER'}">🎓 Student</option>
+                                        <option value="ROLE_MEMBER" th:selected="${user.role == 'ROLE_MEMBER'}">👥 Member</option>
+                                        <option value="ROLE_CORE_MEMBER" th:selected="${user.role == 'ROLE_CORE_MEMBER'}">⭐ Core Member</option>
                                         <option value="ROLE_PRESIDENT" th:selected="${user.role == 'ROLE_PRESIDENT'}">👑 President</option>
                                         <option value="ROLE_SUPER_ADMIN" th:selected="${user.role == 'ROLE_SUPER_ADMIN'}">⚙️ Super Admin</option>
                                     </select>

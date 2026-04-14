@@ -1,6 +1,7 @@
 package com.campuscrew.backend.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -28,6 +29,8 @@ public class Club {
     @Column(nullable = false)
     private String themeColor; // this stores the hex code of the color theme of the club
 
+    private String roleTagColor;
+
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private byte[] logoData;
@@ -35,8 +38,11 @@ public class Club {
     private String logoType;
 
     // one club can host many events
-    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL, fetch = jakarta.persistence.FetchType.EAGER)
     private List<Events> events;
+
+    @OneToMany(mappedBy = "managedClub", fetch = jakarta.persistence.FetchType.EAGER)
+    private Set<AppUser> members;
 
     // these are the getters and setters
     public Long getId() {
@@ -93,5 +99,21 @@ public class Club {
 
     public void setLogoType(String logoType) {
         this.logoType = logoType;
+    }
+
+    public String getRoleTagColor() {
+        return roleTagColor;
+    }
+
+    public void setRoleTagColor(String roleTagColor) {
+        this.roleTagColor = roleTagColor;
+    }
+
+    public Set<AppUser> getMembers() {
+        return members;
+    }
+
+    public void setMembers(Set<AppUser> members) {
+        this.members = members;
     }
 }

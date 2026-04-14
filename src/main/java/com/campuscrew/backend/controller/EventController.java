@@ -11,6 +11,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.entity.Club;
@@ -47,17 +52,41 @@ public class EventController {
         return "events";
     }
 
+    @GetMapping("/events/{id}/poster")
+    public ResponseEntity<byte[]> getEventPoster(@PathVariable Long id) {
+        Events event = eventRepository.findById(id).orElse(null);
+        if (event != null && event.getPosterData() != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(event.getPosterType()));
+            return new ResponseEntity<>(event.getPosterData(), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     // ✨ POST A NEW EVENT
     @PostMapping("/events")
-    public String createEvent(@RequestParam Long clubId,
+    public String createEvent(@RequestParam(required = false) Long clubId,
             @RequestParam String title,
             @RequestParam String dateTime,
             @RequestParam String location,
             @RequestParam String description,
             @RequestParam(required = false) String posterUrl,
+            @RequestParam(value = "posterImage", required = false) MultipartFile posterImage,
+            Principal principal,
             RedirectAttributes redirectAttributes) {
 
-        Club club = clubRepository.findById(clubId).orElse(null);
+        AppUser user = userRepository.findByEmail(principal.getName());
+        Long assignedClubId = clubId;
+
+        if (!"ROLE_SUPER_ADMIN".equals(user.getRole())) {
+            if (user.getManagedClub() == null) {
+                redirectAttributes.addFlashAttribute("error", "Access Denied: You do not manage any clubs!");
+                return "redirect:/events";
+            }
+            assignedClubId = user.getManagedClub().getId();
+        }
+
+        Club club = assignedClubId != null ? clubRepository.findById(assignedClubId).orElse(null) : null;
 
         if (club != null) {
             Events event = new Events();
@@ -67,9 +96,21 @@ public class EventController {
             event.setLocation(location);
             event.setDescription(description);
             event.setPosterUrl(posterUrl);
+            
+            try {
+                if (posterImage != null && !posterImage.isEmpty()) {
+                    event.setPosterData(posterImage.getBytes());
+                    event.setPosterType(posterImage.getContentType());
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload poster image!");
+                return "redirect:/events";
+            }
 
             eventRepository.save(event);
             redirectAttributes.addFlashAttribute("success", "Event created successfully! 🎉");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Error: Club not found or missing ID.");
         }
         return "redirect:/events";
     }
@@ -117,15 +158,37 @@ public class EventController {
             @RequestParam String location,
             @RequestParam String description,
             @RequestParam(required = false) String posterUrl,
+            @RequestParam(value = "posterImage", required = false) MultipartFile posterImage,
+            Principal principal,
             RedirectAttributes redirectAttributes) {
 
         Events event = eventRepository.findById(id).orElse(null);
-        if (event != null) {
+        AppUser user = userRepository.findByEmail(principal.getName());
+
+        if (event != null && user != null) {
+             if (!"ROLE_SUPER_ADMIN".equals(user.getRole())) {
+                 if (user.getManagedClub() == null || !event.getClub().getId().equals(user.getManagedClub().getId())) {
+                     redirectAttributes.addFlashAttribute("error", "Access Denied: You cannot modify this event! 🛑");
+                     return "redirect:/events";
+                 }
+             }
+
             event.setTitle(title);
             event.setDateTime(LocalDateTime.parse(dateTime));
             event.setLocation(location);
             event.setDescription(description);
             event.setPosterUrl(posterUrl);
+            
+            try {
+                if (posterImage != null && !posterImage.isEmpty()) {
+                    event.setPosterData(posterImage.getBytes());
+                    event.setPosterType(posterImage.getContentType());
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failed to upload the new poster image!");
+                return "redirect:/events";
+            }
+            
             eventRepository.save(event);
 
             redirectAttributes.addFlashAttribute("success", "Event updated successfully! ✏️");
@@ -133,9 +196,18 @@ public class EventController {
         return "redirect:/events";
     }
     @PostMapping("/events/{id}/delete")
-    public String deleteEvent(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    public String deleteEvent(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         Events event = eventRepository.findById(id).orElse(null);
-        if (event != null) {
+        AppUser user = userRepository.findByEmail(principal.getName());
+
+        if (event != null && user != null) {
+             if (!"ROLE_SUPER_ADMIN".equals(user.getRole())) {
+                 if (user.getManagedClub() == null || !event.getClub().getId().equals(user.getManagedClub().getId())) {
+                     redirectAttributes.addFlashAttribute("error", "Access Denied: You cannot delete this event! 🛑");
+                     return "redirect:/events";
+                 }
+             }
+
             eventRepository.delete(event);
             redirectAttributes.addFlashAttribute("success", "Event deleted successfully! 🗑️");
         }

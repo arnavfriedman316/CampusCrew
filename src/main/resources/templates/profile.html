@@ -17,59 +17,94 @@
 <body class="bg-body">
 
 <div class="container mt-4 mb-5">
-
-    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gap-3">
-        <div class="text-center text-md-start">
-            <h2 class="m-0 fw-bold text-primary">👤 My Profile</h2>
-            <p class="text-muted mb-0 small">Manage your account details.</p>
-        </div>
+    
+    <div class="bento-grid">
         
-        <div class="d-flex flex-wrap justify-content-center align-items-center gap-2">
-            <a href="/my-events" class="btn btn-success btn-sm shadow-sm px-3 rounded-pill fw-bold">🎫 My Tickets</a>
-            <a href="/" class="btn btn-outline-secondary btn-sm shadow-sm px-3 rounded-pill">Dashboard</a>
-            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 36px; height: 36px;">🌙</button>
-        </div>
-    </div>
-
-    <div class="row justify-content-center mt-5">
-        <div class="col-12 col-md-8 col-lg-5">
+        <!-- Header Block -->
+        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background-color: var(--accent-red) !important; color: white !important;">
+            <div class="text-start">
+                <h2 class="m-0 fw-bold" style="color: white !important;">👤 MY CONFIG</h2>
+                <p class="mb-0 fw-bold" style="opacity: 0.9;">Manage your identity and access framework.</p>
+            </div>
             
-            <div class="card shadow-lg border-0" style="border-radius: 20px; overflow: hidden;">
-                <div class="bg-primary bg-gradient" style="height: 100px;"></div>
-                
-                <div class="card-body px-4 pb-4 text-center" style="margin-top: -60px;">
-                    
-                    <img th:src="${user.profilePhotoUrl != null and !user.profilePhotoUrl.isEmpty() ? user.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=random&size=150'}" 
-                         alt="Profile Avatar" 
-                         class="rounded-circle shadow-sm object-fit-cover border border-4 border-light bg-white mb-3" 
-                         style="width: 120px; height: 120px;">
-                    
-                    <h3 class="fw-bold mb-1" th:text="${user.fullName}">User Full Name</h3>
-                    <p class="text-secondary mb-3" th:text="${user.email}">user@student.edu</p>
-                    
-                    <div class="mb-4">
-                        <span th:if="${user.role == 'ROLE_USER'}" class="badge bg-secondary rounded-pill px-3 py-2 shadow-sm">🎓 Student User</span>
-                        <span th:if="${user.role == 'ROLE_PRESIDENT'}" class="badge bg-warning text-dark rounded-pill px-3 py-2 shadow-sm">👑 Club President</span>
-                        <span th:if="${user.role == 'ROLE_SUPER_ADMIN'}" class="badge bg-danger rounded-pill px-3 py-2 shadow-sm">⚙️ Super Admin</span>
-                    </div>
+            <div class="d-flex flex-wrap justify-content-center align-items-center gap-2 mt-3 mt-md-0">
+                <a href="/my-events" class="btn btn-warning fw-bold py-2 px-4 shadow-none text-dark">MY TICKETS</a>
+                <a href="/" class="btn btn-dark fw-bold py-2 px-4 shadow-none">DASHBOARD &rarr;</a>
+                <button class="btn btn-dark shadow-none d-flex align-items-center justify-content-center p-0" id="darkModeToggle" title="Toggle Dark Mode" style="width: 50px; height: 50px; font-size: 1.2rem;">🌙</button>
+            </div>
+        </div>
 
-                    <hr class="text-secondary opacity-25 mb-4">
-                    
-                    <div class="d-flex flex-column gap-2">
-                        <a href="/profile/edit" class="btn btn-primary fw-bold rounded-pill shadow-sm py-2">
-                            ✏️ Edit Profile
-                        </a>
-                        <a sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" href="/clubs" class="btn btn-outline-warning fw-bold text-dark dark-text-light rounded-pill shadow-sm py-2">
-                            🛡️ Manage Organizations
-                        </a>
-                    </div>
-                    
+        <!-- Alerts -->
+        <div class="bento-item span-4 py-3 bg-success text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong th:text="${success}">Success!</strong>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+        <div class="bento-item span-4 py-3 bg-danger text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <strong th:text="${error}">Error!</strong>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert"></button>
+            </div>
+        </div>
+
+        <!-- Identity Card -->
+        <div class="bento-item span-1 d-flex flex-column justify-content-center align-items-center text-center p-4" style="background-color: var(--bg-cream);">
+            <div class="mb-3">
+                <img th:if="${user.profilePhotoData != null}" th:src="@{/users/{id}/avatar(id=${user.id})}" alt="Avatar" class="rounded-circle object-fit-cover shadow" style="width: 140px; height: 140px; border: 4px solid var(--border-dark);">
+                <img th:unless="${user.profilePhotoData != null}" th:src="${user.profilePhotoUrl != null and !user.profilePhotoUrl.isEmpty() ? user.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=000&color=fff&size=150'}" alt="Avatar" class="rounded-circle object-fit-cover shadow" style="width: 140px; height: 140px; border: 4px solid var(--border-dark);">
+            </div>
+            
+            <h3 class="fw-bold fs-3 mb-1" style="font-family: 'Syne', sans-serif;" th:text="${user.fullName}">Name</h3>
+            <p class="fw-bold mb-3" style="color: var(--border-dark); opacity: 0.8;" th:text="${user.email}">Email</p>
+            
+            <div class="d-flex flex-column w-100 gap-2 mb-4">
+                <span th:if="${user.role == 'ROLE_USER'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2" style="background-color: var(--border-dark); color: var(--bg-cream); border-color: var(--border-dark) !important;">STUDENT USER</span>
+                <span th:if="${user.role == 'ROLE_MEMBER'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2 text-dark" th:style="'background-color: ' + (${user.managedClub != null and user.managedClub.roleTagColor != null ? user.managedClub.roleTagColor : '#e2e8f0'}) + '; border-color: var(--border-dark) !important;'">CLUB MEMBER</span>
+                <span th:if="${user.role == 'ROLE_CORE_MEMBER'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2 text-dark" th:style="'background-color: ' + (${user.managedClub != null and user.managedClub.roleTagColor != null ? user.managedClub.roleTagColor : 'var(--accent-blue)'}) + '; border-color: var(--border-dark) !important; color: white !important;'">CORE MEMBER</span>
+                <span th:if="${user.role == 'ROLE_PRESIDENT'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2 text-dark" th:style="'background-color: ' + (${user.managedClub != null and user.managedClub.roleTagColor != null ? user.managedClub.roleTagColor : 'var(--accent-yellow)'}) + '; border-color: var(--border-dark) !important;'">CLUB PRESIDENT</span>
+                <span th:if="${user.role == 'ROLE_SUPER_ADMIN'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2 text-white" style="background-color: var(--accent-red); border-color: var(--border-dark) !important;">SUPER ADMIN</span>
+                
+                <div th:if="${user.managedClub != null}" class="w-100 mt-1">
+                     <span class="badge rounded-0 py-1 w-100 shadow-none border border-2 fw-bold text-dark" style="background-color: var(--bg-cream); border-color: var(--border-dark) !important; font-size: 0.75rem;" th:text="'🏛️ ' + ${user.managedClub.name}">CLUB NAME</span>
                 </div>
             </div>
             
+            <a sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" href="/clubs" class="btn btn-outline-dark fw-bold w-100 rounded-0 shadow-none border-2">ORG DIRECTORY</a>
         </div>
-    </div>
 
+        <!-- Configuration Form -->
+        <div class="bento-item span-3 d-flex flex-column p-4" style="background-color: var(--bg-cream);">
+            <h4 class="fw-bold fs-4 mb-4" style="font-family: 'Syne', sans-serif;">EDIT IDENTITY</h4>
+            
+            <form th:action="@{/profile/edit}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3 h-100">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Display Name</label>
+                        <input type="text" class="form-control rounded-0 shadow-none border-2 p-3" name="fullName" th:value="${user.fullName}" required style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">System Email (Locked)</label>
+                        <input type="email" class="form-control rounded-0 shadow-none border-2 p-3" name="email" th:value="${user.email}" readonly style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark); opacity: 0.6; cursor: not-allowed;">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Upload Profile Photo</label>
+                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="profileImage" accept="image/*" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                    <small class="fw-bold" style="color: var(--border-dark); opacity: 0.7;">Upload a photo direct from your device to override sync data.</small>
+                </div>
+
+                <div class="mt-auto pt-3">
+                    <button type="submit" class="btn btn-primary fw-bold w-100 rounded-0 shadow-none p-3" style="border: 2px solid var(--border-dark); border-bottom-width: 4px; border-right-width: 4px; font-size: 1.1rem;">SYNCHRONIZE IDENTITY</button>
+                    <div class="text-center mt-3">
+                        <a href="javascript:void(0);" class="small fw-bold text-decoration-none" style="color: var(--border-dark); opacity: 0.5;">Reset Password (Coming Soon)</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

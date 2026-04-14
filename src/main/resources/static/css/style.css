@@ -93,6 +93,24 @@ hr {
     box-shadow: 0px 0px 0px var(--border-dark) !important;
 }
 
+/* Jitter stabilization */
+.card, .bento-item, .btn {
+    position: relative;
+}
+
+.card::after, .bento-item::after, .btn::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: auto;
+    z-index: -1;
+}
+
+.card:hover::after, .bento-item:hover::after, .btn:hover::after {
+    bottom: -12px;
+    right: -12px;
+}
+
 /* Solid Buttons Color Forced */
 .btn-primary { background-color: var(--accent-blue) !important; color: white !important; border-color: var(--border-dark) !important;}
 .btn-danger { background-color: var(--accent-red) !important; color: white !important; border-color: var(--border-dark) !important;}
@@ -126,6 +144,11 @@ hr {
     box-shadow: 4px 4px 0px var(--border-dark) !important;
     outline: none !important;
     border-color: var(--border-dark) !important;
+}
+
+option {
+    background-color: var(--bg-cream) !important;
+    color: var(--border-dark) !important;
 }
 
 /* Badges / Alerts */

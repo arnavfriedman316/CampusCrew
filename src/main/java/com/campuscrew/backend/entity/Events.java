@@ -29,6 +29,28 @@ public class Events {
 
     private String posterUrl;
 
+    @jakarta.persistence.Lob
+    @jakarta.persistence.Column(columnDefinition = "LONGBLOB")
+    private byte[] posterData;
+
+    private String posterType;
+
+    public byte[] getPosterData() {
+        return posterData;
+    }
+
+    public void setPosterData(byte[] posterData) {
+        this.posterData = posterData;
+    }
+
+    public String getPosterType() {
+        return posterType;
+    }
+
+    public void setPosterType(String posterType) {
+        this.posterType = posterType;
+    }
+
     public String getPosterUrl() {
         return posterUrl;
     }

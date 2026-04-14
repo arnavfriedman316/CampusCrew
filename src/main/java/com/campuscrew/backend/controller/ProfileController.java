@@ -8,7 +8,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.repository.UserRepository;
@@ -29,37 +35,47 @@ public class ProfileController {
         model.addAttribute("user", user);
         return "profile";
     }
-    //this allows user to edit their profiles
     @GetMapping("/profile/edit")
-    public String editProfilePage(Principal principal, Model model) {
-        AppUser user = userRepository.findByEmail(principal.getName());
-        if (user == null) {
-            return "redirect:/login";
-        }
-        model.addAttribute("user", user);
-        return "edit-profile"; 
+    public String redirectEditToProfile() {
+        return "redirect:/profile";
     }
     @PostMapping("/profile/edit")
     public String saveProfileChanges(
             Principal principal,
             @RequestParam String fullName,
             @RequestParam(required = false) String bio,
-            @RequestParam(required = false) String profilePhotoUrl,
+            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage,
             RedirectAttributes redirectAttributes) {
         AppUser user = userRepository.findByEmail(principal.getName());
 
         if (user != null) {
-            // Update their details
             user.setFullName(fullName);
             if (bio != null) {
                 user.setBio(bio);
             }
-            if (profilePhotoUrl != null && !profilePhotoUrl.isEmpty()) {
-                user.setProfilePhotoUrl(profilePhotoUrl);
+            try {
+                if (profileImage != null && !profileImage.isEmpty()) {
+                    user.setProfilePhotoData(profileImage.getBytes());
+                    user.setProfilePhotoType(profileImage.getContentType());
+                }
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Failure mapping image chunk bytes to memory.");
+                return "redirect:/profile";
             }
             userRepository.save(user);
-            redirectAttributes.addFlashAttribute("success", "Profile updated successfully! ✨");
+            redirectAttributes.addFlashAttribute("success", "Profile configuration synchronized! ✨");
         }
         return "redirect:/profile";
+    }
+
+    @GetMapping("/users/{id}/avatar")
+    public ResponseEntity<byte[]> getUserAvatar(@PathVariable Long id) {
+        AppUser user = userRepository.findById(id).orElse(null);
+        if (user != null && user.getProfilePhotoData() != null) {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(user.getProfilePhotoType()));
+            return new ResponseEntity<>(user.getProfilePhotoData(), headers, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

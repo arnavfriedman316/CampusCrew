@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -30,6 +31,12 @@ public class AppUser {
     private Club managedClub;
 
     private String profilePhotoUrl;
+
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private byte[] profilePhotoData;
+
+    private String profilePhotoType;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -93,5 +100,17 @@ public class AppUser {
     }
     public void setManagedClub(Club managedClub) {
         this.managedClub = managedClub;
+    }
+    public byte[] getProfilePhotoData() {
+        return profilePhotoData;
+    }
+    public void setProfilePhotoData(byte[] profilePhotoData) {
+        this.profilePhotoData = profilePhotoData;
+    }
+    public String getProfilePhotoType() {
+        return profilePhotoType;
+    }
+    public void setProfilePhotoType(String profilePhotoType) {
+        this.profilePhotoType = profilePhotoType;
     }
 }

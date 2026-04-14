@@ -29,7 +29,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/register", "/login", "/css/**", "/js/**", "/uploads/**").permitAll()
-                .requestMatchers("/admin/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")
+                .requestMatchers("/admin/**").hasAuthority("ROLE_SUPER_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/events/*/register", "/events/*/cancel").authenticated()
                 .requestMatchers(HttpMethod.POST, "/events/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")
                 .requestMatchers(HttpMethod.POST, "/clubs/create").hasAuthority("ROLE_SUPER_ADMIN")
                 .requestMatchers("/clubs/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")

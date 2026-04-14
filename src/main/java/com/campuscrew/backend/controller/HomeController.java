@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.ui.Model;
+import java.security.Principal;
 
 import com.campuscrew.backend.repository.EventRepository;
 
@@ -26,8 +27,14 @@ public class HomeController {
     private EventRepository eventRepository;
 
     @GetMapping("/")
-    public String home(Model model) { //this is the first thing that was made while making this project
+    public String home(Model model, Principal principal) { //this is the first thing that was made while making this project
         model.addAttribute("recentEvents", eventRepository.findTop4ByOrderByDateTimeAsc());
+        
+        if (principal != null) {
+            AppUser currentUser = userRepository.findByEmail(principal.getName());
+            model.addAttribute("currentUser", currentUser);
+        }
+        
         return "index";
     }
 

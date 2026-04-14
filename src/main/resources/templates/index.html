@@ -25,15 +25,11 @@
 
         <!-- User Controls / Identity -->
         <div class="bento-item span-2 d-flex justify-content-center align-items-center flex-column text-center position-relative overflow-hidden">
-            <!-- Background brutalist decoration -->
-            <div class="position-absolute opacity-25" style="right: -20px; bottom: -40px;">
-                <h1 class="display-1 fw-bold" style="font-size: 150px;">👤</h1>
-            </div>
-            <div sec:authorize="isAuthenticated()" class="position-relative" style="z-index: 1;">
-                <h3 class="fw-bold mb-4">👋 Welcome back, <br><span sec:authentication="name" style="color: var(--accent-blue);">User</span></h3>
+            <div th:if="${currentUser != null}" class="position-relative" style="z-index: 1;">
+                <h3 class="fw-bold mb-4">👋 Welcome back, <br><span th:text="${currentUser.fullName}" style="color: var(--accent-blue);">User</span></h3>
                 <div class="d-flex gap-2 justify-content-center">
                     <!-- Standard user link goes to my-events, or we can use edit-profile -->
-                    <a href="/profile/edit" class="btn btn-primary fw-bold px-4 py-2">My Profile</a>
+                    <a href="/profile" class="btn btn-primary fw-bold px-4 py-2">My Profile</a>
                     <form th:action="@{/logout}" method="post" class="m-0">
                         <button type="submit" class="btn btn-outline-danger fw-bold px-4 py-2">Logout</button>
                     </form>
@@ -82,9 +78,10 @@
         <!-- Event Posters loop -->
         <div class="bento-item span-1 p-0 overflow-hidden" th:each="event : ${recentEvents}" style="display: flex; flex-direction: column;">
             <!-- The poster image -->
-            <div class="poster-container" style="border-bottom: 3px solid var(--border-dark); width: 100%; aspect-ratio: 4/5;">
-                <img th:if="${event.posterUrl != null and !event.posterUrl.isEmpty()}" th:src="${event.posterUrl}" class="poster-img" alt="Event Poster">
-                <div th:unless="${event.posterUrl != null and !event.posterUrl.isEmpty()}" class="poster-fallback text-center d-flex align-items-center justify-content-center" style="background: repeating-linear-gradient(45deg, var(--border-dark), var(--border-dark) 10px, transparent 10px, transparent 20px); opacity: 0.2; width: 100%; height: 100%;">
+            <div class="poster-container" style="border-bottom: 3px solid var(--border-dark); width: 100%; aspect-ratio: 4/5; background-color: #000;">
+                <img th:if="${event.posterData != null}" th:src="@{/events/{id}/poster(id=${event.id})}" class="poster-img" style="object-fit: contain; cursor: zoom-in;" data-bs-toggle="modal" th:data-bs-target="'#posterModal' + ${event.id}" alt="Event Poster">
+                <img th:if="${event.posterData == null and event.posterUrl != null and !event.posterUrl.isEmpty()}" th:src="${event.posterUrl}" class="poster-img" style="object-fit: contain; cursor: zoom-in;" data-bs-toggle="modal" th:data-bs-target="'#posterModal' + ${event.id}" alt="Event Poster">
+                <div th:unless="${event.posterData != null or (event.posterUrl != null and !event.posterUrl.isEmpty())}" class="poster-fallback text-center d-flex align-items-center justify-content-center" style="background: repeating-linear-gradient(45deg, #1A1A1A, #1A1A1A 10px, transparent 10px, transparent 20px); opacity: 0.2; width: 100%; height: 100%;">
                     <h1 class="display-3 m-0 position-absolute" style="opacity: 0.5;">🎟️</h1>
                 </div>
             </div>
@@ -102,6 +99,9 @@
                     <a th:href="@{/events(keyword=${event.title})}" class="btn btn-outline-dark btn-sm w-100 fw-bold">GET TICKETS</a>
                 </div>
             </div>
+            
+
+            
         </div>
         
         <div class="bento-item span-4 text-center py-5" th:if="${recentEvents == null or recentEvents.empty}">
@@ -110,20 +110,26 @@
             <p>Check back later or host your own in the Events tab!</p>
         </div>
 
-        <!-- Feature squares -->
-        <div class="bento-item span-2 text-center py-5 position-relative overflow-hidden">
-            <h1 class="display-3 fw-bold mb-3" style="color: var(--accent-red)">🎟️</h1>
-            <h3 class="fw-bold">Discover</h3>
-            <p class="mb-0 fw-bold opacity-75">Find workshops, hackathons, and social gatherings happening right perfectly now.</p>
-        </div>
 
-        <div class="bento-item span-2 text-center py-5 position-relative overflow-hidden">
-            <h1 class="display-3 fw-bold mb-3" style="color: var(--accent-green)">📱</h1>
-            <h3 class="fw-bold">Easy Access</h3>
-            <p class="mb-0 fw-bold opacity-75">Instantly load your tickets using the brutalist dashboard and check-in without hassle.</p>
-        </div>
 
     </div>
+
+    <!-- Poster Magnify Modals (Global Level) -->
+    <th:block th:each="event : ${recentEvents}">
+        <div class="modal fade" th:id="'posterModal' + ${event.id}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content shadow-lg border-0 bg-transparent" style="box-shadow: none !important;">
+                    <div class="modal-header border-bottom-0 p-0" style="position: absolute; right: 0; z-index: 10;">
+                        <button type="button" class="btn-close btn-close-white m-3" data-bs-dismiss="modal" aria-label="Close" style="background-color: white; opacity: 1; border-radius: 50%; padding: 10px;"></button>
+                    </div>
+                    <div class="modal-body p-0 text-center d-flex justify-content-center align-items-center">
+                        <img th:if="${event.posterData != null}" th:src="@{/events/{id}/poster(id=${event.id})}" class="img-fluid border border-3 border-light shadow-lg" alt="Full size poster" style="max-height: 85vh;">
+                        <img th:if="${event.posterData == null and event.posterUrl != null and !event.posterUrl.isEmpty()}" th:src="${event.posterUrl}" class="img-fluid border border-3 border-light shadow-lg" alt="Full size poster" style="max-height: 85vh;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </th:block>
 
 </div>
 
