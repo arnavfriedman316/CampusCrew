@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.campuscrew.backend.entity.AppUser;
@@ -82,5 +84,50 @@ public class AttendanceController {
         } catch (Exception e) {
             e.printStackTrace(); 
         }
+    }
+
+    // 📱 2. TICKET SCANNER FOR STAFF
+    @PostMapping("/events/scan-ticket")
+    public String scanTicket(@RequestParam String qrData, Principal principal, RedirectAttributes redirectAttributes) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            String[] parts = qrData.split(",");
+            String emailPart = parts[0].split(":")[1];
+            Long eventId = Long.parseLong(parts[1].split(":")[1]);
+
+            Events event = eventRepository.findById(eventId).orElse(null);
+            AppUser attendee = userRepository.findByEmail(emailPart);
+
+            if (event == null || attendee == null) {
+                redirectAttributes.addFlashAttribute("error", "Invalid Ticket! User or Event not found. ❌");
+                return "redirect:/events";
+            }
+
+            if (!event.getAttendees().contains(attendee)) {
+                redirectAttributes.addFlashAttribute("error", attendee.getFullName() + " is not registered for " + event.getTitle() + "! 🛑");
+                return "redirect:/events";
+            }
+
+            if (attendanceRepository.existsByEventIdAndUserId(eventId, attendee.getId())) {
+                redirectAttributes.addFlashAttribute("error", attendee.getFullName() + " has already been checked in! ⚠️");
+                return "redirect:/events";
+            }
+
+            Attendance att = new Attendance();
+            att.setEvent(event);
+            att.setUser(attendee);
+            att.setCheckInTime(LocalDateTime.now());
+            attendanceRepository.save(att);
+
+            redirectAttributes.addFlashAttribute("success", attendee.getFullName() + " successfully checked in! ✅");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Failed to parse ticket data! Invalid QR format. ❌");
+        }
+
+        return "redirect:/events";
     }
 }

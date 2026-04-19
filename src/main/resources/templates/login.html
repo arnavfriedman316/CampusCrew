@@ -15,41 +15,41 @@
 <body class="bg-body d-flex align-items-center justify-content-center" style="min-height: 100vh; padding: 2rem 0;">
 
 <div class="container px-3">
-    <div class="card shadow-lg border-0 mx-auto p-4 p-md-5" style="max-width: 400px; width: 100%; border-radius: 20px;">
+    <div class="card mx-auto p-4 p-md-5" style="max-width: 400px; width: 100%;">
         
         <div class="text-center mb-4">
-            <h2 class="fw-bold text-primary">🎓 CampusCrew</h2>
-            <p class="text-muted small">Welcome back! Please login to your account.</p>
+            <h2 class="fw-bold fs-2" style="font-family: 'Syne', sans-serif; text-transform: uppercase;">CampusCrew</h2>
+            <p class="fw-bold" style="opacity: 0.8;">Welcome back! Please login to your account.</p>
         </div>
         
-        <div th:if="${param.error}" class="alert alert-danger text-center py-2 shadow-sm rounded-3">Invalid email or password.</div>
-        <div th:if="${param.logout}" class="alert alert-success text-center py-2 shadow-sm rounded-3">You have been logged out.</div>
+        <div th:if="${param.error}" class="alert alert-danger text-center py-2">Invalid email or password.</div>
+        <div th:if="${param.logout}" class="alert alert-success text-center py-2">You have been logged out.</div>
 
         <form th:action="@{/login}" method="post">
             <div class="mb-3">
-                <label class="form-label small fw-bold text-secondary">Email address</label>
-                <input type="email" class="form-control form-control-lg shadow-sm" name="username" required>
+                <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Email address</label>
+                <input type="email" class="form-control form-control-lg" name="username" required>
             </div>
             <div class="mb-4">
-                <label class="form-label small fw-bold text-secondary">Password</label>
-                <input type="password" class="form-control form-control-lg shadow-sm" name="password" required>
+                <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Password</label>
+                <input type="password" class="form-control form-control-lg" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold rounded-pill shadow-sm">Sign In</button>
+            <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">SIGN IN</button>
         </form>
 
         <div class="d-flex align-items-center my-4">
-            <hr class="flex-grow-1 text-secondary opacity-25">
-            <span class="mx-3 text-secondary small fw-bold">OR</span>
-            <hr class="flex-grow-1 text-secondary opacity-25">
+            <hr class="flex-grow-1" style="opacity: 1;">
+            <span class="mx-3 small fw-bold" style="color: var(--border-dark);">OR</span>
+            <hr class="flex-grow-1" style="opacity: 1;">
         </div>
 
-        <a href="/oauth2/authorization/google" class="btn btn-light border border-secondary-subtle w-100 fw-bold rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2 text-dark text-decoration-none">
+        <a href="/oauth2/authorization/google" class="btn btn-light w-100 fw-bold py-2 d-flex align-items-center justify-content-center gap-2 text-decoration-none">
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google Logo" style="width: 20px; height: 20px;">
-            Continue with Google
+            CONTINUE WITH GOOGLE
         </a>
         
-        <div class="text-center mt-4 border-top border-secondary-subtle pt-3">
-            <p class="small text-muted mb-0">Don't have an account? <a href="/register" class="fw-bold text-primary text-decoration-none">Register here</a></p>
+        <div class="text-center mt-4 pt-3" style="border-top: 3px solid var(--border-dark);">
+            <p class="small fw-bold mb-0">Don't have an account? <a href="/register" class="fw-bold text-decoration-none" style="color: var(--accent-blue);">Register here</a></p>
         </div>
         
     </div>

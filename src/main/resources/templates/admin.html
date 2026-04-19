@@ -18,9 +18,9 @@
 <div class="container mt-4 mb-5">
     <div class="bento-grid">
         <!-- Header Block -->
-        <div class="bento-item span-4 d-flex justify-content-between align-items-center" style="background-color: var(--accent-red) !important; color: white !important;">
+        <div class="bento-item span-4 d-flex justify-content-between align-items-center">
             <div class="text-start">
-                <h2 class="m-0 fw-bold" style="color: white !important;">⚙️ ADMIN PANEL</h2>
+                <h2 class="m-0 fw-bold">ADMIN PANEL</h2>
                 <p class="mb-0 fw-bold" style="opacity: 0.9;">Manage users, roles, clubs, and platform settings.</p>
             </div>
             
@@ -31,13 +31,13 @@
         </div>
 
         <!-- Alerts -->
-        <div class="bento-item span-4 py-3 bg-success text-dark" th:if="${success}" style="background-color: var(--accent-green) !important;">
+        <div class="bento-item span-4 py-3 text-dark" th:if="${success}" style="background-color: var(--accent-green) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${success}">Success!</strong>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
-        <div class="bento-item span-4 py-3 bg-danger text-white" th:if="${error}" style="background-color: var(--accent-red) !important;">
+        <div class="bento-item span-4 py-3 text-white" th:if="${error}" style="background-color: var(--accent-red) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${error}">Error!</strong>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -47,17 +47,17 @@
         <!-- Management Table Block -->
         <div class="bento-item span-4 p-0 overflow-hidden" style="display: flex; flex-direction: column;">
             
-            <div class="p-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 border-bottom" style="border-color: var(--border-dark) !important; background-color: var(--bg-cream);">
-                <span class="fw-bold fs-4" style="font-family: 'Syne', sans-serif;">👥 USER MANAGEMENT</span>
+            <div class="p-3 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 border-bottom" style="border-color: var(--border-dark) !important;">
+                <span class="fw-bold fs-4" style="font-family: 'Syne', sans-serif;">USER MANAGEMENT</span>
                 
                 <form th:action="@{/admin}" method="get" class="d-flex w-100 m-0" style="max-width: 300px; border: 2px solid var(--border-dark);">
-                    <input type="text" name="keyword" class="form-control border-0 shadow-none rounded-0 px-3 py-2" placeholder="Search name or email..." th:value="${keyword}" style="background-color: var(--bg-cream); color: var(--border-dark);">
+                    <input type="text" name="keyword" class="form-control border-0 shadow-none rounded-0 px-3 py-2" placeholder="Search name or email..." th:value="${keyword}">
                     <button type="submit" class="btn btn-dark rounded-0 fw-bold px-3 border-0 border-start" style="border-color: var(--border-dark) !important;">SEARCH</button>
                 </form>
             </div>
             
             <div class="table-responsive bg-transparent">
-                <table class="table align-middle mb-0" style="--bs-table-bg: transparent; --bs-table-color: inherit; border-color: var(--border-dark);">
+                <table class="table align-middle mb-0">
                     <thead>
                         <tr style="border-bottom: 2px solid var(--border-dark);">
                             <th class="px-4 py-3 fw-bold text-uppercase">User</th>
@@ -90,15 +90,15 @@
                                     
                                     <input type="hidden" name="userId" th:value="${user.id}">
                                     
-                                    <select name="newRole" class="form-select shadow-none rounded-0 border-2 fw-bold" style="max-width: 150px; border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                                    <select name="newRole" class="form-select shadow-none rounded-0 border-2 fw-bold" style="max-width: 150px;">
                                         <option value="ROLE_USER" th:selected="${user.role == 'ROLE_USER'}">🎓 Student</option>
                                         <option value="ROLE_MEMBER" th:selected="${user.role == 'ROLE_MEMBER'}">👥 Member</option>
-                                        <option value="ROLE_CORE_MEMBER" th:selected="${user.role == 'ROLE_CORE_MEMBER'}">⭐ Core Member</option>
+                                        <option value="ROLE_CORE_MEMBER" th:selected="${user.role == 'ROLE_CORE_MEMBER'}">⭐ Core</option>
                                         <option value="ROLE_PRESIDENT" th:selected="${user.role == 'ROLE_PRESIDENT'}">👑 President</option>
                                         <option value="ROLE_SUPER_ADMIN" th:selected="${user.role == 'ROLE_SUPER_ADMIN'}">⚙️ Super Admin</option>
                                     </select>
                                     
-                                    <select name="managedClubId" class="form-select shadow-none rounded-0 border-2 fw-bold" style="max-width: 150px; border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                                    <select name="managedClubId" class="form-select shadow-none rounded-0 border-2 fw-bold" style="max-width: 150px;">
                                         <option value="">-- No Club --</option>
                                         <option th:each="club : ${clubs}" 
                                                 th:value="${club.id}" 

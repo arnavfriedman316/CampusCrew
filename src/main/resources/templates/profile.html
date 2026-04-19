@@ -21,9 +21,9 @@
     <div class="bento-grid">
         
         <!-- Header Block -->
-        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background-color: var(--accent-red) !important; color: white !important;">
+        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
             <div class="text-start">
-                <h2 class="m-0 fw-bold" style="color: white !important;">👤 MY CONFIG</h2>
+                <h2 class="m-0 fw-bold">MY CONFIG</h2>
                 <p class="mb-0 fw-bold" style="opacity: 0.9;">Manage your identity and access framework.</p>
             </div>
             
@@ -35,13 +35,13 @@
         </div>
 
         <!-- Alerts -->
-        <div class="bento-item span-4 py-3 bg-success text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
+        <div class="bento-item span-4 py-3 text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${success}">Success!</strong>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
             </div>
         </div>
-        <div class="bento-item span-4 py-3 bg-danger text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
+        <div class="bento-item span-4 py-3 text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${error}">Error!</strong>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert"></button>
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Identity Card -->
-        <div class="bento-item span-1 d-flex flex-column justify-content-center align-items-center text-center p-4" style="background-color: var(--bg-cream);">
+        <div class="bento-item span-1 d-flex flex-column justify-content-center align-items-center text-center p-4">
             <div class="mb-3">
                 <img th:if="${user.profilePhotoData != null}" th:src="@{/users/{id}/avatar(id=${user.id})}" alt="Avatar" class="rounded-circle object-fit-cover shadow" style="width: 140px; height: 140px; border: 4px solid var(--border-dark);">
                 <img th:unless="${user.profilePhotoData != null}" th:src="${user.profilePhotoUrl != null and !user.profilePhotoUrl.isEmpty() ? user.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + user.fullName + '&background=000&color=fff&size=150'}" alt="Avatar" class="rounded-circle object-fit-cover shadow" style="width: 140px; height: 140px; border: 4px solid var(--border-dark);">
@@ -66,7 +66,7 @@
                 <span th:if="${user.role == 'ROLE_SUPER_ADMIN'}" class="badge rounded-0 py-2 w-100 shadow-none border border-2 text-white" style="background-color: var(--accent-red); border-color: var(--border-dark) !important;">SUPER ADMIN</span>
                 
                 <div th:if="${user.managedClub != null}" class="w-100 mt-1">
-                     <span class="badge rounded-0 py-1 w-100 shadow-none border border-2 fw-bold text-dark" style="background-color: var(--bg-cream); border-color: var(--border-dark) !important; font-size: 0.75rem;" th:text="'🏛️ ' + ${user.managedClub.name}">CLUB NAME</span>
+                     <span class="badge rounded-0 py-1 w-100 shadow-none border border-2 fw-bold" style="background-color: var(--bg-cream); border-color: var(--border-dark) !important; color: var(--border-dark) !important; font-size: 0.75rem;" th:text="${user.managedClub.name}">CLUB NAME</span>
                 </div>
             </div>
             
@@ -74,24 +74,24 @@
         </div>
 
         <!-- Configuration Form -->
-        <div class="bento-item span-3 d-flex flex-column p-4" style="background-color: var(--bg-cream);">
+        <div class="bento-item span-3 d-flex flex-column p-4">
             <h4 class="fw-bold fs-4 mb-4" style="font-family: 'Syne', sans-serif;">EDIT IDENTITY</h4>
             
             <form th:action="@{/profile/edit}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3 h-100">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Display Name</label>
-                        <input type="text" class="form-control rounded-0 shadow-none border-2 p-3" name="fullName" th:value="${user.fullName}" required style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                        <input type="text" class="form-control rounded-0 shadow-none border-2 p-3" name="fullName" th:value="${user.fullName}" required>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">System Email (Locked)</label>
-                        <input type="email" class="form-control rounded-0 shadow-none border-2 p-3" name="email" th:value="${user.email}" readonly style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark); opacity: 0.6; cursor: not-allowed;">
+                        <input type="email" class="form-control rounded-0 shadow-none border-2 p-3" name="email" th:value="${user.email}" readonly style="opacity: 0.6; cursor: not-allowed;">
                     </div>
                 </div>
 
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Upload Profile Photo</label>
-                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="profileImage" accept="image/*" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="profileImage" accept="image/*">
                     <small class="fw-bold" style="color: var(--border-dark); opacity: 0.7;">Upload a photo direct from your device to override sync data.</small>
                 </div>
 

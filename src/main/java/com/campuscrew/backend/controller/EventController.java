@@ -20,8 +20,11 @@ import org.springframework.web.multipart.MultipartFile;
 import com.campuscrew.backend.entity.AppUser;
 import com.campuscrew.backend.entity.Club;
 import com.campuscrew.backend.entity.Events;
+import com.campuscrew.backend.entity.TeamMember;
+import com.campuscrew.backend.entity.TeamRegistration;
 import com.campuscrew.backend.repository.ClubRepository;
 import com.campuscrew.backend.repository.EventRepository;
+import com.campuscrew.backend.repository.TeamRegistrationRepository;
 import com.campuscrew.backend.repository.UserRepository;
 
 @Controller
@@ -35,6 +38,9 @@ public class EventController {
 
     @Autowired
     private ClubRepository clubRepository;
+
+    @Autowired
+    private TeamRegistrationRepository teamRegistrationRepository;
 
     // 📅 LOAD ALL EVENTS & SEARCH
     @GetMapping("/events")
@@ -70,6 +76,9 @@ public class EventController {
             @RequestParam String dateTime,
             @RequestParam String location,
             @RequestParam String description,
+            @RequestParam(required = false) Boolean isTeamEvent,
+            @RequestParam(required = false) Integer minTeamSize,
+            @RequestParam(required = false) Integer maxTeamSize,
             @RequestParam(required = false) String posterUrl,
             @RequestParam(value = "posterImage", required = false) MultipartFile posterImage,
             Principal principal,
@@ -95,6 +104,9 @@ public class EventController {
             event.setDateTime(LocalDateTime.parse(dateTime));
             event.setLocation(location);
             event.setDescription(description);
+            event.setIsTeamEvent(isTeamEvent != null ? isTeamEvent : false);
+            event.setMinTeamSize(minTeamSize);
+            event.setMaxTeamSize(maxTeamSize);
             event.setPosterUrl(posterUrl);
             
             try {
@@ -133,6 +145,56 @@ public class EventController {
         }
         return "redirect:/events";
     }
+
+    @PostMapping("/events/{id}/register-team")
+    public String registerTeamForEvent(@PathVariable Long id, 
+            @RequestParam String teamName,
+            @RequestParam(value="memberName[]", required=false) String[] memberNames,
+            @RequestParam(value="memberPhone[]", required=false) String[] memberPhones,
+            @RequestParam(value="memberCampus[]", required=false) String[] memberCampuses,
+            @RequestParam(value="memberEmail[]", required=false) String[] memberEmails,
+            Principal principal, RedirectAttributes redirectAttributes) {
+        
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Events event = eventRepository.findById(id).orElse(null);
+        AppUser leader = userRepository.findByEmail(principal.getName());
+
+        if (event != null && leader != null && Boolean.TRUE.equals(event.getIsTeamEvent())) {
+            
+            if (!event.getAttendees().contains(leader)) {
+                
+                TeamRegistration team = new TeamRegistration();
+                team.setEvent(event);
+                team.setLeader(leader);
+                team.setTeamName(teamName);
+                
+                if (memberNames != null) {
+                    for (int i = 0; i < memberNames.length; i++) {
+                        if (!memberNames[i].trim().isEmpty()) {
+                            TeamMember member = new TeamMember();
+                            member.setName(memberNames[i]);
+                            member.setPhoneNumber(memberPhones != null && i < memberPhones.length ? memberPhones[i] : "");
+                            member.setCampus(memberCampuses != null && i < memberCampuses.length ? memberCampuses[i] : "");
+                            member.setEmail(memberEmails != null && i < memberEmails.length ? memberEmails[i] : "");
+                            team.addMember(member);
+                        }
+                    }
+                }
+                
+                teamRegistrationRepository.save(team);
+
+                event.getAttendees().add(leader);
+                eventRepository.save(event);
+                redirectAttributes.addFlashAttribute("success", "Successfully registered Team " + teamName + " for " + event.getTitle() + "! 🎟️");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "You have already registered for this event!");
+            }
+        }
+        return "redirect:/events";
+    }
     @PostMapping("/events/{id}/cancel")
     public String cancelRegistration(@PathVariable Long id, Principal principal, RedirectAttributes redirectAttributes) {
         if (principal == null) {
@@ -145,6 +207,12 @@ public class EventController {
         if (event != null && user != null) {
             if (event.getAttendees().contains(user)) {
                 event.getAttendees().remove(user);
+                
+                TeamRegistration team = teamRegistrationRepository.findByEventAndLeader(event, user);
+                if (team != null) {
+                    teamRegistrationRepository.delete(team);
+                }
+
                 eventRepository.save(event);
                 redirectAttributes.addFlashAttribute("success", "Registration cancelled for " + event.getTitle() + ".");
             }
@@ -157,6 +225,9 @@ public class EventController {
             @RequestParam String dateTime,
             @RequestParam String location,
             @RequestParam String description,
+            @RequestParam(required = false) Boolean isTeamEvent,
+            @RequestParam(required = false) Integer minTeamSize,
+            @RequestParam(required = false) Integer maxTeamSize,
             @RequestParam(required = false) String posterUrl,
             @RequestParam(value = "posterImage", required = false) MultipartFile posterImage,
             Principal principal,
@@ -177,6 +248,9 @@ public class EventController {
             event.setDateTime(LocalDateTime.parse(dateTime));
             event.setLocation(location);
             event.setDescription(description);
+            event.setIsTeamEvent(isTeamEvent != null ? isTeamEvent : false);
+            event.setMinTeamSize(minTeamSize);
+            event.setMaxTeamSize(maxTeamSize);
             event.setPosterUrl(posterUrl);
             
             try {

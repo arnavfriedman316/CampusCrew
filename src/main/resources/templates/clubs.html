@@ -21,9 +21,9 @@
     <div class="bento-grid">
         
         <!-- Header Block -->
-        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center" style="background-color: var(--accent-red) !important; color: white !important;">
+        <div class="bento-item span-4 d-flex flex-column flex-md-row justify-content-between align-items-center">
             <div class="text-start">
-                <h2 class="m-0 fw-bold" style="color: white !important;">🛡️ MANAGE CLUBS</h2>
+                <h2 class="m-0 fw-bold">MANAGE CLUBS</h2>
                 <p class="mb-0 fw-bold" style="opacity: 0.9;">Create and organize student organizations.</p>
             </div>
             
@@ -35,13 +35,13 @@
         </div>
 
         <!-- Alerts -->
-        <div class="bento-item span-4 py-3 bg-success text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
+        <div class="bento-item span-4 py-3 text-dark p-3" th:if="${success}" style="background-color: var(--accent-green) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${success}">Success!</strong>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="alert"></button>
             </div>
         </div>
-        <div class="bento-item span-4 py-3 bg-danger text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
+        <div class="bento-item span-4 py-3 text-white p-3" th:if="${error}" style="background-color: var(--accent-red) !important;">
             <div class="d-flex justify-content-between align-items-center">
                 <strong th:text="${error}">Error!</strong>
                 <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="alert"></button>
@@ -49,24 +49,24 @@
         </div>
 
         <!-- Create Club Form -->
-        <div sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" class="bento-item span-1 h-100 d-flex flex-column justify-content-start" style="background-color: var(--bg-cream);">
-            <h4 class="fw-bold fs-4 mb-4" style="font-family: 'Syne', sans-serif;">➕ NEW CLUB</h4>
+        <div sec:authorize="hasAuthority('ROLE_SUPER_ADMIN')" class="bento-item span-1 h-100 d-flex flex-column justify-content-start">
+            <h4 class="fw-bold fs-4 mb-4" style="font-family: 'Syne', sans-serif;">NEW CLUB</h4>
             <form th:action="@{/clubs/create}" method="post" enctype="multipart/form-data" class="d-flex flex-column gap-3">
                 
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Club Name</label>
-                    <input type="text" class="form-control rounded-0 shadow-none border-2" name="name" required placeholder="e.g. Coding Club" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                    <input type="text" class="form-control rounded-0 shadow-none border-2" name="name" required placeholder="e.g. Coding Club">
                 </div>
                 
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Club Logo</label>
-                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="logoImage" accept="image/*" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                    <input type="file" class="form-control rounded-0 shadow-none border-2" name="logoImage" accept="image/*">
                 </div>
                 
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Brand Color</label>
                     <div class="d-flex align-items-center gap-2">
-                        <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="themeColor" value="#3366FF" title="Choose color" required style="border-color: var(--border-dark);">
+                        <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="themeColor" value="#3366FF" title="Choose color" required>
                         <span class="small fw-bold" style="opacity: 0.7;">Select a HEX</span>
                     </div>
                 </div>
@@ -74,14 +74,14 @@
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Role Tag Color</label>
                     <div class="d-flex align-items-center gap-2">
-                        <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="roleTagColor" value="#e2e8f0" title="Choose role color" required style="border-color: var(--border-dark);">
+                        <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="roleTagColor" value="#e2e8f0" title="Choose role color" required>
                         <span class="small fw-bold" style="opacity: 0.7;">Select a HEX</span>
                     </div>
                 </div>
                 
                 <div>
                     <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Description</label>
-                    <textarea class="form-control rounded-0 shadow-none border-2" name="description" rows="4" required placeholder="What does this club do?" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);"></textarea>
+                    <textarea class="form-control rounded-0 shadow-none border-2" name="description" rows="4" required placeholder="What does this club do?"></textarea>
                 </div>
                 
                 <button type="submit" class="btn btn-primary fw-bold rounded-0 shadow-none mt-3" style="border: 2px solid var(--border-dark); border-bottom-width: 4px; border-right-width: 4px;">CREATE CLUB</button>
@@ -89,14 +89,14 @@
         </div>
 
         <!-- Clubs Table -->
-        <div th:class="${#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')} ? 'bento-item span-3 p-0 overflow-hidden' : 'bento-item span-4 p-0 overflow-hidden'" style="display: flex; flex-direction: column; background-color: var(--bg-cream);">
+        <div th:class="${#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')')} ? 'bento-item span-3 p-0 overflow-hidden' : 'bento-item span-4 p-0 overflow-hidden'" style="display: flex; flex-direction: column;">
             
             <div class="p-3 border-bottom" style="border-color: var(--border-dark) !important;">
                 <span class="fw-bold fs-4" style="font-family: 'Syne', sans-serif;">DIRECTORY</span>
             </div>
             
             <div class="table-responsive bg-transparent" style="flex-grow: 1;">
-                <table class="table align-middle mb-0" style="--bs-table-bg: transparent; --bs-table-color: inherit; border-color: var(--border-dark);">
+                <table class="table align-middle mb-0">
                     <thead>
                         <tr style="border-bottom: 2px solid var(--border-dark);">
                             <th class="px-4 py-3 fw-bold text-uppercase">Club</th>
@@ -163,9 +163,9 @@
     <div th:each="club : ${clubs}">
         <div class="modal fade text-start" th:id="'editClubModal-' + ${club.id}" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(5px);">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content rounded-0 border-2" style="border-color: var(--border-dark); background-color: var(--bg-cream);">
+                <div class="modal-content rounded-0 border-2">
                     <div class="modal-header border-bottom-0">
-                        <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">✏️ EDIT CLUB</h5>
+                        <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">EDIT CLUB</h5>
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form th:action="@{/clubs/edit/{id}(id=${club.id})}" method="post" enctype="multipart/form-data">
@@ -173,7 +173,7 @@
                             <div>
                                 <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Brand Color</label>
                                 <div class="d-flex align-items-center gap-2">
-                                    <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="themeColor" th:value="${club.themeColor}" required style="border-color: var(--border-dark);">
+                                    <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="themeColor" th:value="${club.themeColor}" required>
                                     <span class="small fw-bold" style="opacity: 0.7;">Select a HEX</span>
                                 </div>
                             </div>
@@ -181,19 +181,19 @@
                             <div>
                                 <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Role Tag Color</label>
                                 <div class="d-flex align-items-center gap-2">
-                                    <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="roleTagColor" th:value="${club.roleTagColor != null ? club.roleTagColor : '#e2e8f0'}" required style="border-color: var(--border-dark);">
+                                    <input type="color" class="form-control form-control-color p-1 rounded-0 shadow-none border-2" name="roleTagColor" th:value="${club.roleTagColor != null ? club.roleTagColor : '#e2e8f0'}" required>
                                     <span class="small fw-bold" style="opacity: 0.7;">Select a HEX</span>
                                 </div>
                             </div>
                             
                             <div>
                                 <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Club Logo</label>
-                                <input type="file" class="form-control rounded-0 shadow-none border-2" name="logoImage" accept="image/*" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);">
+                                <input type="file" class="form-control rounded-0 shadow-none border-2" name="logoImage" accept="image/*">
                             </div>
                             
                             <div>
                                 <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Description</label>
-                                <textarea class="form-control rounded-0 shadow-none border-2" name="description" rows="4" required th:text="${club.description}" style="border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);"></textarea>
+                                <textarea class="form-control rounded-0 shadow-none border-2" name="description" rows="4" required th:text="${club.description}"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer border-top-0 mt-2">
@@ -207,14 +207,14 @@
 
         <div class="modal fade" th:id="'rosterModal-' + ${club.id}" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(5px);">
             <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content rounded-0 border-2" style="border-color: var(--border-dark); background-color: var(--bg-cream);">
+                <div class="modal-content rounded-0 border-2">
                     <div class="modal-header border-bottom-0">
-                        <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">👥 <span th:text="${club.name}"></span> <span style="opacity: 0.7;">ROSTER</span></h5>
+                        <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;"><span th:text="${club.name}"></span> <span style="opacity: 0.7;">ROSTER</span></h5>
                         <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body py-0">
                         <div class="table-responsive bg-transparent">
-                            <table class="table align-middle mb-4" style="--bs-table-bg: transparent; --bs-table-color: inherit; border-color: var(--border-dark);">
+                            <table class="table align-middle mb-4">
                                 <thead>
                                     <tr style="border-bottom: 2px solid var(--border-dark);">
                                         <th class="py-2 text-uppercase fw-bold">Member</th>
@@ -237,7 +237,8 @@
                                         <td class="py-3 text-end">
                                             <form th:action="@{/clubs/{clubId}/update-role(clubId=${club.id})}" method="post" class="d-flex align-items-center justify-content-end gap-2 m-0">
                                                 <input type="hidden" name="userId" th:value="${member.id}">
-                                                <select name="newRole" class="form-select form-select-sm shadow-none rounded-0 border-2 fw-bold" style="max-width: 130px; border-color: var(--border-dark); background-color: var(--bg-cream); color: var(--border-dark);" th:disabled="${member.role == 'ROLE_SUPER_ADMIN' or (member.role == 'ROLE_PRESIDENT' and !#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')'))}">
+                                                <select name="newRole" class="form-select form-select-sm shadow-none rounded-0 border-2 fw-bold" style="max-width: 130px;" th:disabled="${member.role == 'ROLE_SUPER_ADMIN' or (member.role == 'ROLE_PRESIDENT' and !#authorization.expression('hasAuthority(''ROLE_SUPER_ADMIN'')'))}">
+
                                                     <option value="ROLE_USER" th:selected="${member.role == 'ROLE_USER'}">🎓 Student</option>
                                                     <option value="ROLE_MEMBER" th:selected="${member.role == 'ROLE_MEMBER'}">👥 Member</option>
                                                     <option value="ROLE_CORE_MEMBER" th:selected="${member.role == 'ROLE_CORE_MEMBER'}">⭐ Core</option>

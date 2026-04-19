@@ -35,6 +35,13 @@ public class Events {
 
     private String posterType;
 
+    private Boolean isTeamEvent = false;
+    private Integer minTeamSize;
+    private Integer maxTeamSize;
+
+    @jakarta.persistence.OneToMany(mappedBy = "event", cascade = jakarta.persistence.CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<TeamRegistration> teamRegistrations = new java.util.ArrayList<>();
+
     public byte[] getPosterData() {
         return posterData;
     }
@@ -118,5 +125,37 @@ public class Events {
 
     public void setClub(Club club) {
         this.club = club;
+    }
+
+    public Boolean getIsTeamEvent() {
+        return isTeamEvent;
+    }
+
+    public void setIsTeamEvent(Boolean isTeamEvent) {
+        this.isTeamEvent = isTeamEvent;
+    }
+
+    public Integer getMinTeamSize() {
+        return minTeamSize;
+    }
+
+    public void setMinTeamSize(Integer minTeamSize) {
+        this.minTeamSize = minTeamSize;
+    }
+
+    public Integer getMaxTeamSize() {
+        return maxTeamSize;
+    }
+
+    public void setMaxTeamSize(Integer maxTeamSize) {
+        this.maxTeamSize = maxTeamSize;
+    }
+
+    public java.util.List<TeamRegistration> getTeamRegistrations() {
+        return teamRegistrations;
+    }
+
+    public void setTeamRegistrations(java.util.List<TeamRegistration> teamRegistrations) {
+        this.teamRegistrations = teamRegistrations;
     }
 }

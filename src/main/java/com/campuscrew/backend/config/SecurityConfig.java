@@ -30,7 +30,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/register", "/login", "/css/**", "/js/**", "/uploads/**").permitAll()
                 .requestMatchers("/admin/**").hasAuthority("ROLE_SUPER_ADMIN")
-                .requestMatchers(HttpMethod.POST, "/events/*/register", "/events/*/cancel").authenticated()
+                .requestMatchers("/events/*/attendance/export").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT", "ROLE_CORE_MEMBER")
+                .requestMatchers("/events/scan-ticket").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT", "ROLE_CORE_MEMBER", "ROLE_MEMBER")
+                .requestMatchers(HttpMethod.POST, "/events/*/register", "/events/*/register-team", "/events/*/cancel").authenticated()
                 .requestMatchers(HttpMethod.POST, "/events/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")
                 .requestMatchers(HttpMethod.POST, "/clubs/create").hasAuthority("ROLE_SUPER_ADMIN")
                 .requestMatchers("/clubs/**").hasAnyAuthority("ROLE_SUPER_ADMIN", "ROLE_PRESIDENT")

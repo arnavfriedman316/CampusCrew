@@ -20,28 +20,28 @@
 
     <div class="row align-items-center mb-4 pb-3 border-bottom border-secondary-subtle gy-3">
         <div class="col-12 col-md-4 text-center text-md-start">
-            <h2 class="m-0 fw-bold">📅 Campus Events</h2>
+            <h2 class="m-0 fw-bold">Campus Events</h2>
         </div>
         
         <div class="col-12 col-md-4">
-            <form th:action="@{/events}" method="get" class="d-flex shadow-sm">
-                <input class="form-control me-2 rounded-pill shadow-sm" type="search" name="keyword" th:value="${keyword}" placeholder="Search events...">
-                <button class="btn btn-primary rounded-pill px-4 fw-bold" type="submit">Search</button>
+            <form th:action="@{/events}" method="get" class="d-flex">
+                <input class="form-control me-2" type="search" name="keyword" th:value="${keyword}" placeholder="Search events...">
+                <button class="btn btn-primary px-4 fw-bold" type="submit">Search</button>
             </form>
         </div>
 
         <div class="col-12 col-md-4 d-flex flex-wrap justify-content-center justify-content-md-end align-items-center gap-2">
-            <a href="/clubs" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="btn btn-outline-primary btn-sm shadow-sm px-3 rounded-pill fw-bold">Clubs</a>
-            <a href="/" class="btn btn-outline-secondary btn-sm shadow-sm px-3 rounded-pill fw-bold">Dashboard</a>
-            <button class="btn btn-dark shadow-sm rounded-circle d-flex align-items-center justify-content-center" id="darkModeToggle" title="Toggle Dark Mode" style="width: 38px; height: 38px;">🌙</button>
+            <a href="/clubs" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="btn btn-outline-primary btn-sm px-3 fw-bold">Clubs</a>
+            <a href="/" class="btn btn-outline-secondary btn-sm px-3 fw-bold">Dashboard</a>
+            <button class="btn btn-dark d-flex align-items-center justify-content-center p-0" id="darkModeToggle" title="Toggle Dark Mode" style="width: 38px; height: 38px;">🌙</button>
         </div>
     </div>
 
-    <div th:if="${success}" class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 text-center" role="alert">
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show text-center" role="alert">
         <strong th:text="${success}">Success!</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
-    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 text-center" role="alert">
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show text-center" role="alert">
         <strong th:text="${error}">Error!</strong>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -57,8 +57,7 @@
             <div class="row row-cols-1 row-cols-md-2 g-4">
                 <div class="col" th:each="event : ${events}">
                     
-                    <div class="card event-card h-100 p-0 shadow-sm border-0" 
-                         th:style="'border: 3px solid var(--border-dark) !important; background-color: var(--bg-cream);'">
+                    <div class="card h-100 p-0">
                         
                         <!-- Poster Image Header -->
                         <div class="poster-container" style="border-bottom: 3px solid var(--border-dark); margin: 0; width: 100%; aspect-ratio: 4/5; background-color: #000;">
@@ -71,13 +70,13 @@
                         <div class="card-body d-flex flex-column p-3 p-md-4">
                             
                             <div class="mb-2">
-                                <span class="badge rounded-pill shadow-sm py-1 px-3"
-                                      th:style="'background-color: ' + (${event.club != null ? event.club.themeColor : '#6c757d'}) + ';'"
+                                <span class="badge py-1 px-3 text-dark"
+                                      th:style="'background-color: ' + (${event.club != null ? event.club.themeColor : 'var(--accent-green)'}) + ';'"
                                       th:text="${event.club != null ? event.club.name : 'General Event'}">Club Name</span>
                             </div>
 
                             <h5 class="card-title fw-bold mb-3 mt-1" 
-                                th:style="'color: ' + (${event.club != null ? event.club.themeColor : '#0d6efd'}) + ';'" 
+                                style="font-family: 'Syne', sans-serif;"
                                 th:text="${event.title}">Event Title</h5>
                             
                             <p class="card-text mb-1 text-secondary small">📍 <span th:text="${event.location}">Location</span></p>
@@ -85,49 +84,67 @@
                             <p class="card-text flex-grow-1 small" th:text="${event.description}">Event description goes here.</p>
                             
                             <div class="mt-3" th:with="isRegistered=${event.attendees.?[email == #authentication.name].size() > 0}">
-                                <form th:if="${!isRegistered}" th:action="@{/events/{id}/register(id=${event.id})}" method="post" class="m-0">
-                                    <button type="submit" class="btn btn-outline-primary w-100 fw-bold rounded-pill shadow-sm">Register Now</button>
-                                </form>
-                                <form th:if="${isRegistered}" th:action="@{/events/{id}/cancel(id=${event.id})}" method="post" class="m-0">
-                                    <button type="submit" class="btn btn-outline-danger w-100 fw-bold rounded-pill shadow-sm">Cancel Ticket</button>
+                                <th:block th:if="${event.isTeamEvent == null or !event.isTeamEvent}">
+                                    <form th:if="${!isRegistered}" th:action="@{/events/{id}/register(id=${event.id})}" method="post" class="m-0">
+                                        <button type="submit" class="btn btn-primary w-100 fw-bold">Register Now</button>
+                                    </form>
+                                </th:block>
+                                <th:block th:if="${event.isTeamEvent != null and event.isTeamEvent}">
+                                    <button th:if="${!isRegistered}" 
+                                            class="btn btn-primary w-100 fw-bold text-dark"
+                                            data-bs-toggle="modal" 
+                                            th:data-bs-target="'#teamRegisterModal' + ${event.id}">
+                                        Register Team (<span th:text="${event.minTeamSize} + '-' + ${event.maxTeamSize} + ' members'"></span>)
+                                    </button>
+                                </th:block>
+
+                                <form th:if="${isRegistered}" th:action="@{/events/{id}/cancel(id=${event.id})}" method="post" class="m-0 mt-2">
+                                    <button type="submit" class="btn btn-outline-danger w-100 fw-bold">Cancel Ticket</button>
                                 </form>
                             </div>
                             
-                            <button sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" 
-                                    class="btn btn-light border border-secondary-subtle w-100 fw-bold rounded-pill shadow-sm mt-2 small"
+                            <button sec:authorize="hasAnyAuthority('ROLE_MEMBER', 'ROLE_CORE_MEMBER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" 
+                                    class="btn btn-light w-100 fw-bold mt-2 small text-dark"
                                     data-bs-toggle="modal" 
                                     th:data-bs-target="'#guestListModal' + ${event.id}">
-                                📋 View Guest List (<span th:text="${event.attendees.size()}"></span>)
+                                View Guest List (<span th:text="${event.attendees.size()}"></span>)
                             </button>
 
-                            <div sec:authorize="hasAnyAuthority('ROLE_MANAGER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" class="mt-3 border-top border-secondary-subtle pt-3">
-                                <p class="small fw-bold text-muted mb-2 text-center">⚙️ Attendance</p>
+                            <div sec:authorize="hasAnyAuthority('ROLE_MEMBER', 'ROLE_CORE_MEMBER', 'ROLE_PRESIDENT', 'ROLE_SUPER_ADMIN')" class="mt-3 pt-3" style="border-top: 3px solid var(--border-dark);">
+                                <p class="small fw-bold mb-2 text-center" style="opacity: 0.8;">Attendance</p>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <button class="btn btn-outline-dark btn-sm flex-fill fw-bold rounded-pill shadow-sm"
+                                    <button class="btn btn-dark btn-sm flex-fill fw-bold"
                                             data-bs-toggle="modal" 
                                             th:data-bs-target="'#qrModal' + ${event.id}">
-                                        📱 QR
+                                        QR
                                     </button>
                                     
+                                    <button class="btn btn-primary btn-sm flex-fill fw-bold text-dark"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#globalScannerModal"
+                                            th:onclick="'startScanner(' + ${event.id} + ')'">
+                                        SCAN
+                                    </button>
+
                                     <a th:href="@{/events/{id}/attendance/export(id=${event.id})}" 
-                                       class="btn btn-outline-success btn-sm flex-fill fw-bold rounded-pill shadow-sm">
-                                        📊 CSV
+                                       class="btn btn-success btn-sm flex-fill fw-bold">
+                                        CSV
                                     </a>
                                 </div>
                             </div>
 
-                            <div sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="mt-3 border-top border-secondary-subtle pt-3">
-                                <p class="small fw-bold text-muted mb-2 text-center">🛠️ Manage Event</p>
+                            <div sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')" class="mt-3 pt-3" style="border-top: 3px solid var(--border-dark);">
+                                <p class="small fw-bold mb-2 text-center" style="opacity: 0.8;">Manage Event</p>
                                 <div class="d-flex flex-wrap gap-2">
-                                    <button class="btn btn-warning btn-sm flex-fill fw-bold rounded-pill shadow-sm"
+                                    <button class="btn btn-warning btn-sm flex-fill fw-bold"
                                             data-bs-toggle="modal" 
                                             th:data-bs-target="'#editModal' + ${event.id}">
-                                        ✏️ Edit
+                                        Edit
                                     </button>
                                     
                                     <form th:action="@{/events/{id}/delete(id=${event.id})}" method="post" class="flex-fill m-0" onsubmit="return confirm('Are you sure you want to delete this event? This action cannot be undone.');">
-                                        <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold rounded-pill shadow-sm">
-                                            🗑️ Delete
+                                        <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold">
+                                            Delete
                                         </button>
                                     </form>
                                 </div>
@@ -136,12 +153,50 @@
                         </div>
                     </div>
                     
+                    
+                    <!-- Team Registration Modal -->
+                    <div th:if="${event.isTeamEvent != null and event.isTeamEvent}" class="modal fade" th:id="'teamRegisterModal' + ${event.id}" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+                        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header border-bottom-0 pb-0">
+                                    <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">TEAM REGISTRATION</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form th:action="@{/events/{id}/register-team(id=${event.id})}" method="POST" th:id="'teamForm' + ${event.id}">
+                                    <div class="modal-body">
+                                        <div class="mb-4">
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Team Name <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control fw-bold" name="teamName" required placeholder="Enter team name...">
+                                        </div>
+
+                                        <div class="alert alert-info border-0 rounded-0" style="background: rgba(var(--bs-primary-rgb), 0.1);">
+                                            <p class="mb-0 small fw-bold"><i class="bi bi-info-circle me-1"></i> You are automatically registered as the Team Leader. Let's add your teammates!</p>
+                                            <small class="d-block mt-1">Requires at least <span th:text="${event.minTeamSize - 1}"></span> and up to <span th:text="${event.maxTeamSize - 1}"></span> additional member(s).</small>
+                                        </div>
+
+                                        <div th:id="'membersContainer' + ${event.id}" class="mt-3">
+                                            <!-- JS will inject rows here -->
+                                        </div>
+
+                                        <button type="button" class="btn btn-outline-dark w-100 fw-bold mt-2" th:onclick="'addMemberRow(' + ${event.id} + ', ' + ${event.maxTeamSize - 1} + ')'" th:id="'addMemberBtn' + ${event.id}">
+                                            + ADD MEMBER
+                                        </button>
+                                    </div>
+                                    <div class="modal-footer border-top-0 pt-3">
+                                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">CANCEL</button>
+                                        <button type="submit" class="btn btn-primary fw-bold text-dark px-4" th:onclick="'return validateTeamForm(' + ${event.id} + ', ' + ${event.minTeamSize - 1} + ')'">SUBMIT REGISTRATION</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Poster Magnify Modal -->
                     <div class="modal fade" th:id="'posterModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content shadow-lg border-0 bg-transparent" style="box-shadow: none !important;">
+                            <div class="modal-content border-0 bg-transparent">
                                 <div class="modal-header border-bottom-0 p-0" style="position: absolute; right: 0; z-index: 10;">
-                                    <button type="button" class="btn-close btn-close-white m-3" data-bs-dismiss="modal" aria-label="Close" style="background-color: white; opacity: 1; border-radius: 50%; padding: 10px;"></button>
+                                    <button type="button" class="btn-close m-3 bg-light" data-bs-dismiss="modal" aria-label="Close" style="opacity: 1; border-radius: 50%; padding: 10px;"></button>
                                 </div>
                                 <div class="modal-body p-0 text-center d-flex justify-content-center align-items-center">
                                     <img th:if="${event.posterData != null}" th:src="@{/events/{id}/poster(id=${event.id})}" class="img-fluid border border-3 border-light shadow-lg" alt="Full size poster" style="max-height: 85vh;">
@@ -153,29 +208,50 @@
 
                     <div class="modal fade" th:id="'guestListModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                            <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+                            <div class="modal-content">
                                 <div class="modal-header border-bottom-0 pb-0">
-                                    <h5 class="modal-title fw-bold text-primary">Guest List</h5>
+                                    <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">GUEST LIST</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <div th:if="${event.attendees.empty}" class="text-center py-4">
-                                        <h4 class="text-muted">🦗 *crickets*</h4>
-                                        <p class="text-secondary m-0">No one has registered for this event yet.</p>
+                                        <h4 style="opacity: 0.5;">🦗 *crickets*</h4>
+                                        <p class="m-0" style="opacity: 0.7;">No one has registered for this event yet.</p>
                                     </div>
-                                    <ul class="list-group list-group-flush" th:unless="${event.attendees.empty}">
-                                        <li class="list-group-item d-flex align-items-center py-3" th:each="guest : ${event.attendees}">
-                                            <img th:src="${guest.profilePhotoUrl != null and !guest.profilePhotoUrl.isEmpty() ? guest.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + guest.fullName + '&background=random&size=50'}" 
-                                                 alt="Avatar" class="rounded-circle me-3 shadow-sm object-fit-cover" style="width: 45px; height: 45px;">
-                                            <div>
-                                                <h6 class="m-0 fw-bold" th:text="${guest.fullName}">User Name</h6>
-                                                <small class="text-secondary" th:text="${guest.email}">user@email.com</small>
+                                    <th:block th:unless="${event.attendees.empty}">
+                                        
+                                        <!-- SOLO EVENT GUEST LIST -->
+                                        <ul th:if="${event.isTeamEvent == null or !event.isTeamEvent}" class="list-group list-group-flush">
+                                            <li class="list-group-item d-flex align-items-center py-3 bg-transparent" style="border-color: var(--border-dark);" th:each="guest : ${event.attendees}">
+                                                <img th:src="${guest.profilePhotoUrl != null and !guest.profilePhotoUrl.isEmpty() ? guest.profilePhotoUrl : 'https://ui-avatars.com/api/?name=' + guest.fullName + '&background=random&size=50'}" 
+                                                     alt="Avatar" class="me-3 object-fit-cover shadow" style="width: 45px; height: 45px; border: 2px solid var(--border-dark);">
+                                                <div>
+                                                    <h6 class="m-0 fw-bold" th:text="${guest.fullName}">User Name</h6>
+                                                    <small style="opacity: 0.8;" th:text="${guest.email}">user@email.com</small>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                        
+                                        <!-- TEAM EVENT GUEST LIST -->
+                                        <div th:if="${event.isTeamEvent != null and event.isTeamEvent}">
+                                            <div th:each="team : ${event.teamRegistrations}" class="mb-4 p-3 border" style="border-color: var(--border-dark) !important; background: rgba(0,0,0,0.02);">
+                                                <h5 class="fw-bold m-0" style="color: var(--accent-blue);" th:text="${team.teamName}">Team Name</h5>
+                                                <p class="small text-secondary mb-2">Leader: <span th:text="${team.leader.fullName}"></span></p>
+                                                
+                                                <ul class="list-group list-group-flush border-top">
+                                                    <li class="list-group-item d-flex align-items-center py-2 bg-transparent" th:each="member : ${team.members}">
+                                                        <div>
+                                                            <h6 class="m-0 fw-bold small" th:text="${member.name}">Member Name</h6>
+                                                            <small style="opacity: 0.8;" th:text="${member.email} + ' | ' + ${member.phoneNumber} + ' | ' + ${member.campus}"></small>
+                                                        </div>
+                                                    </li>
+                                                </ul>
                                             </div>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                    </th:block>
                                 </div>
                                 <div class="modal-footer border-top-0 pt-0">
-                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark px-4" data-bs-dismiss="modal">CLOSE</button>
                                 </div>
                             </div>
                         </div>
@@ -183,19 +259,19 @@
 
                     <div class="modal fade" th:id="'qrModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+                            <div class="modal-content">
                                 <div class="modal-header border-bottom-0 pb-0 d-flex justify-content-center">
-                                    <h5 class="modal-title fw-bold text-dark dark-text-light">Scan to Check-in</h5>
+                                    <h5 class="modal-title fw-bold">SCAN TO CHECK-IN</h5>
                                 </div>
                                 <div class="modal-body text-center pb-4">
                                     <img th:src="'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://campuscrew-app.onrender.com/events/' + ${event.id} + '/checkin'" 
-                                         alt="QR Code" class="img-fluid mx-auto mb-3 shadow-sm rounded border p-2 bg-white">
+                                         alt="QR Code" class="img-fluid mx-auto mb-3 shadow rounded border p-2 bg-white">
                                     
-                                    <p class="fw-bold text-primary mb-0" th:text="${event.title}">Event Title</p>
-                                    <p class="small text-danger fw-bold mt-2 mb-0">Note: Members must be logged in to scan!</p>
+                                    <p class="fw-bold mb-0" th:text="${event.title}" style="color: var(--accent-blue);">Event Title</p>
+                                    <p class="small fw-bold mt-2 mb-0" style="color: var(--accent-red);">Note: Members must be logged in to scan!</p>
                                 </div>
                                 <div class="modal-footer border-top-0 pt-0 justify-content-center">
-                                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-dark px-4" data-bs-dismiss="modal">CLOSE</button>
                                 </div>
                             </div>
                         </div>
@@ -203,39 +279,65 @@
 
                     <div class="modal fade" th:id="'editModal' + ${event.id}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content shadow-lg border-0" style="border-radius: 20px;">
+                            <div class="modal-content">
                                 <div class="modal-header border-bottom-0 pb-0">
-                                    <h5 class="modal-title fw-bold text-warning">✏️ Edit Event</h5>
+                                    <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">EDIT EVENT</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                     <form th:action="@{/events/{id}/edit(id=${event.id})}" method="post" enctype="multipart/form-data">
                                         
                                         <div class="mb-3">
-                                            <label class="form-label small fw-bold text-secondary">Event Title</label>
-                                            <input type="text" class="form-control shadow-sm" name="title" th:value="${event.title}" required>
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Event Title</label>
+                                            <input type="text" class="form-control" name="title" th:value="${event.title}" required>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="form-label small fw-bold text-secondary">Date & Time</label>
-                                            <input type="datetime-local" class="form-control shadow-sm" name="dateTime" th:value="${event.dateTime}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold text-secondary">Location</label>
-                                            <input type="text" class="form-control shadow-sm" name="location" th:value="${event.location}" required>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label small fw-bold text-secondary">Poster URL</label>
-                                            <input type="url" class="form-control shadow-sm" name="posterUrl" th:value="${event.posterUrl}" placeholder="Image link (optional)">
-                                            
-                                            <label class="form-label small fw-bold text-secondary mt-2">Or Upload Poster Image File</label>
-                                            <input type="file" class="form-control shadow-sm" name="posterImage" accept="image/*">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label class="form-label small fw-bold text-secondary">Description</label>
-                                            <textarea class="form-control shadow-sm" name="description" rows="3" required th:text="${event.description}"></textarea>
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Date & Time</label>
+                                            <input type="datetime-local" class="form-control" name="dateTime" th:value="${event.dateTime}" required>
                                         </div>
                                         
-                                        <button type="submit" class="btn btn-warning w-100 fw-bold shadow-sm rounded-pill py-2 text-dark">Save Changes</button>
+                                        <div class="mb-3 border p-3 bg-light" style="border-color: var(--border-dark) !important;">
+                                            <label class="form-label small fw-bold text-uppercase d-block" style="color: var(--border-dark);">Event Type</label>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="isTeamEvent" th:id="'soloEventRadio' + ${event.id}" value="false" th:checked="${event.isTeamEvent == null or !event.isTeamEvent}" th:onchange="'document.getElementById(\'editTeamFields' + ${event.id} + '\').classList.add(\'d-none\')'">
+                                                <label class="form-check-label fw-bold text-dark" th:for="'soloEventRadio' + ${event.id}">Solo Event</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="radio" name="isTeamEvent" th:id="'teamEventRadio' + ${event.id}" value="true" th:checked="${event.isTeamEvent != null and event.isTeamEvent}" th:onchange="'document.getElementById(\'editTeamFields' + ${event.id} + '\').classList.remove(\'d-none\')'">
+                                                <label class="form-check-label fw-bold text-dark" th:for="'teamEventRadio' + ${event.id}">Team Event (Group)</label>
+                                            </div>
+                    
+                                            <div th:id="'editTeamFields' + ${event.id}" class="mt-3" th:classappend="${event.isTeamEvent == null or !event.isTeamEvent ? 'd-none' : ''}">
+                                                <div class="row g-2">
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Min Members</label>
+                                                        <input type="number" class="form-control" name="minTeamSize" min="2" max="10" th:value="${event.minTeamSize != null ? event.minTeamSize : 2}">
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Max Members</label>
+                                                        <input type="number" class="form-control" name="maxTeamSize" min="2" max="10" th:value="${event.maxTeamSize != null ? event.maxTeamSize : 5}">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Location</label>
+                                            <input type="text" class="form-control" name="location" th:value="${event.location}" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Poster URL</label>
+                                            <input type="url" class="form-control" name="posterUrl" th:value="${event.posterUrl}" placeholder="Image link (optional)">
+                                            
+                                            <label class="form-label small fw-bold text-uppercase mt-2" style="color: var(--border-dark);">Or Upload Poster Image File</label>
+                                            <input type="file" class="form-control" name="posterImage" accept="image/*">
+                                        </div>
+                                        <div class="mb-4">
+                                            <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Description</label>
+                                            <textarea class="form-control" name="description" rows="3" required th:text="${event.description}"></textarea>
+                                        </div>
+                                        
+                                        <button type="submit" class="btn btn-warning w-100 fw-bold py-2 text-dark">SAVE CHANGES</button>
                                     </form>
                                 </div>
                             </div>
@@ -247,43 +349,69 @@
         </div>
 
         <div class="col-12 col-lg-4 sticky-lg-top" style="top: 20px; z-index: 1;" sec:authorize="hasAnyAuthority('ROLE_SUPER_ADMIN', 'ROLE_PRESIDENT')">
-            <div class="card shadow-sm p-4 border-0" style="border-radius: 15px;">
-                <h5 class="fw-bold mb-4 text-primary">Post a New Event ✨</h5>
+            <div class="bento-item p-4">
+                <h5 class="fw-bold mb-4" style="font-family: 'Syne', sans-serif;">POST A NEW EVENT</h5>
                 <form th:action="@{/events}" method="post" enctype="multipart/form-data">
                     
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Host Organization</label>
-                        <select class="form-select shadow-sm fw-bold" name="clubId" required>
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Host Organization</label>
+                        <select class="form-select fw-bold" name="clubId" required>
                             <option value="" disabled selected>Select the club...</option>
                             <option th:each="club : ${clubs}" th:value="${club.id}" th:text="${club.name}"></option>
                         </select>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Event Title</label>
-                        <input type="text" class="form-control shadow-sm" name="title" required placeholder="e.g. Spring Hackathon">
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Event Title</label>
+                        <input type="text" class="form-control" name="title" required placeholder="e.g. Spring Hackathon">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Date & Time</label>
-                        <input type="datetime-local" class="form-control shadow-sm" name="dateTime" required>
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Date & Time</label>
+                        <input type="datetime-local" class="form-control" name="dateTime" required>
+                    </div>
+
+                    <div class="mb-3 border p-3 border-secondary-subtle">
+                        <label class="form-label small fw-bold text-uppercase d-block" style="color: var(--border-dark);">Event Type</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isTeamEvent" id="soloEventRadio" value="false" checked onchange="document.getElementById('newTeamFields').classList.add('d-none')">
+                            <label class="form-check-label fw-bold" for="soloEventRadio">Solo Event</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="isTeamEvent" id="teamEventRadio" value="true" onchange="document.getElementById('newTeamFields').classList.remove('d-none')">
+                            <label class="form-check-label fw-bold" for="teamEventRadio">Team Event (Group)</label>
+                        </div>
+
+                        <div id="newTeamFields" class="mt-3 d-none">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Min Members</label>
+                                    <input type="number" class="form-control" name="minTeamSize" min="2" max="10" value="2">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Max Members</label>
+                                    <input type="number" class="form-control" name="maxTeamSize" min="2" max="10" value="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Location</label>
+                        <input type="text" class="form-control" name="location" required placeholder="e.g. Main Auditorium">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Location</label>
-                        <input type="text" class="form-control shadow-sm" name="location" required placeholder="e.g. Main Auditorium">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-secondary">Poster Image URL</label>
-                        <input type="url" class="form-control shadow-sm" name="posterUrl" placeholder="Image link (optional)">
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Poster Image URL</label>
+                        <input type="url" class="form-control" name="posterUrl" placeholder="Image link (optional)">
                         
-                        <label class="form-label small fw-bold text-secondary mt-2">Or Upload Poster Image File</label>
-                        <input type="file" class="form-control shadow-sm" name="posterImage" accept="image/*">
+                        <label class="form-label small fw-bold text-uppercase mt-2" style="color: var(--border-dark);">Or Upload Poster Image File</label>
+                        <input type="file" class="form-control" name="posterImage" accept="image/*">
                     </div>
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-secondary">Description</label>
-                        <textarea class="form-control shadow-sm" name="description" rows="3" required placeholder="What is this event about?"></textarea>
+                        <label class="form-label small fw-bold text-uppercase" style="color: var(--border-dark);">Description</label>
+                        <textarea class="form-control" name="description" rows="3" required placeholder="What is this event about?"></textarea>
                     </div>
                     
-                    <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill py-2">Publish Event</button>
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2">PUBLISH EVENT</button>
                 </form>
             </div>
         </div>
@@ -322,6 +450,130 @@
         }
     });
 </script>
+<!-- GLOBAL SCANNER MODAL -->
+<div class="modal fade" id="globalScannerModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold" style="font-family: 'Syne', sans-serif;">SCAN ENTRY PASS</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="stopScanner()"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="reader" style="width:100%; min-height:300px; border: 2px solid var(--border-dark);"></div>
+                <form id="scanForm" th:action="@{/events/scan-ticket}" method="POST" class="d-none">
+                    <input type="hidden" name="qrData" id="qrDataInput">
+                </form>
+            </div>
+            <div class="modal-footer border-top-0 pt-0 justify-content-center">
+                <button type="button" class="btn btn-dark px-4 fw-bold" data-bs-dismiss="modal" onclick="stopScanner()">CLOSE</button>
+            </div>
+        </div>
+    </div>
+</div>
 
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+    let html5QrcodeScanner = null;
+
+    function startScanner(eventId) {
+        if (!html5QrcodeScanner) {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: {width: 250, height: 250} },
+                /* verbose= */ false);
+        }
+        
+        // Wait a small delay to ensure the modal DOM is rendered before starting the camera
+        setTimeout(() => {
+            let scanned = false;
+            html5QrcodeScanner.render((decodedText, decodedResult) => {
+                if(!scanned) {
+                    if (decodedText.includes("user:") && decodedText.includes("event:")) {
+                        let textEventId = decodedText.split("event:")[1];
+                        if (textEventId == eventId) {
+                            scanned = true;
+                            document.getElementById('qrDataInput').value = decodedText;
+                            document.getElementById('scanForm').submit();
+                            stopScanner();
+                        } else {
+                            alert("This ticket is not for this event!");
+                            scanned = true;
+                            stopScanner();
+                            let modalEl = document.getElementById('globalScannerModal');
+                            let modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        }
+                    }
+                }
+            }, (errorMessage) => {
+                // Ignore parse errors from partially scanned codes
+            });
+        }, 300);
+    }
+
+    function stopScanner() {
+        if (html5QrcodeScanner) {
+            html5QrcodeScanner.clear().catch(error => {
+                console.error("Failed to clear scanner.", error);
+            });
+            html5QrcodeScanner = null;
+        }
+    }
+<script>
+    function addMemberRow(eventId, maxMembers) {
+        let container = document.getElementById('membersContainer' + eventId);
+        let currentRows = container.getElementsByClassName('member-row').length;
+
+        if (currentRows >= maxMembers) {
+            alert("Maximum team size reached!");
+            return;
+        }
+
+        let newRow = document.createElement('div');
+        newRow.className = "member-row p-3 mb-3 border position-relative";
+        newRow.style.borderColor = "var(--border-dark) !important";
+        newRow.style.background = "rgba(0,0,0,0.02)";
+        newRow.innerHTML = `
+            <button type="button" class="btn-close position-absolute top-0 end-0 m-2" onclick="this.parentElement.remove(); checkMemberLimit(${eventId}, ${maxMembers});"></button>
+            <h6 class="fw-bold mb-3 small" style="opacity: 0.7;">TEAMMATE</h6>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="text" class="form-control form-control-sm" name="memberName[]" placeholder="Full Name" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="email" class="form-control form-control-sm" name="memberEmail[]" placeholder="Email Address" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control form-control-sm" name="memberPhone[]" placeholder="Phone Number" required>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control form-control-sm" name="memberCampus[]" placeholder="Campus/College" required>
+                </div>
+            </div>
+        `;
+        container.appendChild(newRow);
+        checkMemberLimit(eventId, maxMembers);
+    }
+
+    function checkMemberLimit(eventId, maxMembers) {
+        let container = document.getElementById('membersContainer' + eventId);
+        let btn = document.getElementById('addMemberBtn' + eventId);
+        if (container.getElementsByClassName('member-row').length >= maxMembers) {
+            btn.classList.add('d-none');
+        } else {
+            btn.classList.remove('d-none');
+        }
+    }
+
+    function validateTeamForm(eventId, minMembers) {
+        let container = document.getElementById('membersContainer' + eventId);
+        let currentRows = container.getElementsByClassName('member-row').length;
+        if (currentRows < minMembers) {
+            alert("You need to add at least " + minMembers + " additional member(s) to meet the minimum team size.");
+            return false;
+        }
+        return true;
+    }
+</script>
 </body>
 </html>
