@@ -55,8 +55,13 @@ public class ProfileController {
             }
             try {
                 if (profileImage != null && !profileImage.isEmpty()) {
+                    String contentType = profileImage.getContentType();
+                    if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp") || contentType.equals("image/gif"))) {
+                        redirectAttributes.addFlashAttribute("error", "Security Alert: Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed.");
+                        return "redirect:/profile";
+                    }
                     user.setProfilePhotoData(profileImage.getBytes());
-                    user.setProfilePhotoType(profileImage.getContentType());
+                    user.setProfilePhotoType(contentType);
                 }
             } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("error", "Failure mapping image chunk bytes to memory.");

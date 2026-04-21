@@ -56,8 +56,13 @@ public class ClubController {
             }
             
             if (logoImage != null && !logoImage.isEmpty()) {
+                String contentType = logoImage.getContentType();
+                if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp") || contentType.equals("image/gif"))) {
+                    redirectAttributes.addFlashAttribute("error", "Security Alert: Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed.");
+                    return "redirect:/clubs";
+                }
                 club.setLogoData(logoImage.getBytes());
-                club.setLogoType(logoImage.getContentType());
+                club.setLogoType(contentType);
             }
 
             clubRepository.save(club);
@@ -99,8 +104,13 @@ public class ClubController {
             
             try {
                 if (logoImage != null && !logoImage.isEmpty()) {
+                    String contentType = logoImage.getContentType();
+                    if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp") || contentType.equals("image/gif"))) {
+                        redirectAttributes.addFlashAttribute("error", "Security Alert: Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed.");
+                        return "redirect:/clubs";
+                    }
                     club.setLogoData(logoImage.getBytes());
-                    club.setLogoType(logoImage.getContentType());
+                    club.setLogoType(contentType);
                 }
             } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("error", "Failed to upload the new logo!");

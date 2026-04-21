@@ -24,7 +24,9 @@ public class AdminController {
 
     @Autowired
     private ClubRepository clubRepository;
-    private final String SUPREME_ADMIN_EMAIL = "admin316@campuscrew.com";
+
+    @org.springframework.beans.factory.annotation.Value("${app.admin.email:admin316@campuscrew.com}")
+    private String SUPREME_ADMIN_EMAIL;
     @GetMapping("/admin")
     public String adminDashboard(@RequestParam(value = "keyword", required = false) String keyword, Model model) {
         if (keyword != null && !keyword.isEmpty()) {

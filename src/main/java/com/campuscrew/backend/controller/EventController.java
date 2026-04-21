@@ -111,8 +111,13 @@ public class EventController {
             
             try {
                 if (posterImage != null && !posterImage.isEmpty()) {
+                    String contentType = posterImage.getContentType();
+                    if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp") || contentType.equals("image/gif"))) {
+                        redirectAttributes.addFlashAttribute("error", "Security Alert: Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed.");
+                        return "redirect:/events";
+                    }
                     event.setPosterData(posterImage.getBytes());
-                    event.setPosterType(posterImage.getContentType());
+                    event.setPosterType(contentType);
                 }
             } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("error", "Failed to upload poster image!");
@@ -255,8 +260,13 @@ public class EventController {
             
             try {
                 if (posterImage != null && !posterImage.isEmpty()) {
+                    String contentType = posterImage.getContentType();
+                    if (contentType == null || !(contentType.equals("image/jpeg") || contentType.equals("image/png") || contentType.equals("image/webp") || contentType.equals("image/gif"))) {
+                        redirectAttributes.addFlashAttribute("error", "Security Alert: Invalid file type. Only JPG, PNG, WEBP, and GIF are allowed.");
+                        return "redirect:/events";
+                    }
                     event.setPosterData(posterImage.getBytes());
-                    event.setPosterType(posterImage.getContentType());
+                    event.setPosterType(contentType);
                 }
             } catch (Exception e) {
                 redirectAttributes.addFlashAttribute("error", "Failed to upload the new poster image!");
